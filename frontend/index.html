@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FestivalQuote — Get 3 local festival quotes</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <div class="nav">
+    <div class="brand">Festival<span>Quote</span></div>
+    <div class="pill">India Festival Season 2026</div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div>
+      <p class="eyebrow">SAVE TIME. COMPARE OPTIONS.</p>
+      <h1>Tell us what you need.<br><em>We find 3 local options.</em></h1>
+      <p class="sub">For Diwali, Durga Puja, Dussehra, Chhath and more. Submit one request and our remote team sources relevant local providers.</p>
+    </div>
+    <div class="card trust">
+      <strong>What happens next</strong>
+      <div>1. You submit your need</div>
+      <div>2. We source matching providers</div>
+      <div>3. You receive up to 3 comparable quotes</div>
+    </div>
+  </section>
+
+  <section class="form-card">
+    <div class="section-head">
+      <h2>Request 3 quotes</h2>
+      <span>Free during launch</span>
+    </div>
+
+    <form id="requestForm">
+      <div class="grid">
+        <label>Name
+          <input name="name" required placeholder="Your name">
+        </label>
+        <label>Phone / WhatsApp
+          <input name="phone" required placeholder="9876543210">
+        </label>
+      </div>
+
+      <div class="grid">
+        <label>City
+          <input name="city" required placeholder="Guwahati">
+        </label>
+        <label>Service
+          <select name="service">
+            <option>Diwali Decoration</option>
+            <option>Photographer</option>
+            <option>Caterer</option>
+            <option>Pandit / Puja Service</option>
+            <option>Puja Material</option>
+            <option>Corporate Gifting</option>
+            <option>Chhath Services</option>
+            <option>Other Festival Service</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="grid">
+        <label>Event date
+          <input type="date" name="event_date" required>
+        </label>
+        <label>Budget
+          <select name="budget">
+            <option>Under ₹5,000</option>
+            <option>₹5,000–₹10,000</option>
+            <option>₹10,000–₹25,000</option>
+            <option>₹25,000–₹50,000</option>
+            <option>₹50,000+</option>
+            <option>Not sure</option>
+          </select>
+        </label>
+      </div>
+
+      <label>Anything we should know?
+        <textarea name="details" rows="4" placeholder="Location, number of guests, style, quantity, urgency…"></textarea>
+      </label>
+
+      <label>Email (optional)
+        <input name="email" type="email" placeholder="you@example.com">
+      </label>
+
+      <button>Find my 3 options →</button>
+      <p id="msg" class="msg"></p>
+    </form>
+  </section>
+
+  <section class="examples">
+    <div><span>DIWALI</span><h3>Decoration</h3><p>Home, office, society and shop lighting/decor.</p></div>
+    <div><span>PUJA</span><h3>Pandit & materials</h3><p>Share date, city and puja type once.</p></div>
+    <div><span>CHHATH</span><h3>Local support</h3><p>Coordinate hard-to-find seasonal services remotely.</p></div>
+  </section>
+
+  <section class="footer-note">
+    <strong>Providers:</strong> qualified festival enquiries will be shared after verification.
+  </section>
+</main>
+
+<script>
+const API = (localStorage.getItem('fq_api') || 'https://festivalquote-api.onrender.com').replace(/\/$/, '');
+
+document.getElementById('requestForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const msg = document.getElementById('msg');
+  msg.textContent = 'Submitting…';
+
+  try {
+    const payload = Object.fromEntries(new FormData(form));
+    const response = await fetch(API + '/api/requests', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Could not submit');
+
+    msg.textContent = 'Request #' + data.id + ' received. We’ll source options and contact you on WhatsApp/phone.';
+    form.reset();
+  } catch (error) {
+    msg.textContent = 'Could not submit. Please try again.';
+  }
+});
+</script>
+</body>
+</html>
