@@ -3,22 +3,23 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="FestivalQuote helps Indian families and businesses compare local festival service options without calling dozens of providers.">
-<meta name="theme-color" content="#c96b32">
+<meta name="theme-color" content="#c96b32"><meta name="robots" content="index,follow"><link rel="canonical" href="/"><meta property="og:type" content="website"><meta property="og:title" content="FestivalQuote — Festival services, sorted for you"><meta property="og:description" content="Tell us your festival service need and compare relevant local options without calling dozens of providers.">
 <title>FestivalQuote — Festival services, sorted for you</title>
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header>
   <div class="nav">
     <a class="brand" href="/">Festival<span>Quote</span></a>
-    <nav class="navlinks">
+    <nav class="navlinks" aria-label="Primary navigation">
       <a href="#festivals">Festivals</a><a href="#how">How it works</a><a href="#faq">FAQ</a>
       <a class="navcta" href="#request">Get quotes →</a>
     </nav>
   </div>
 </header>
 
-<main>
+<main id="main-content">
 <section class="hero">
   <div class="hero-copy">
     <div class="live-pill"><span></span> Festival season is here • Guwahati launch</div>
@@ -55,8 +56,8 @@
   <div class="section-head"><div><p class="eyebrow">FREE DURING LAUNCH</p><h2>Tell us what you need</h2><p class="form-intro">Give us the basics. Our job is to turn this into useful local options.</p></div><span class="quote-badge">Usually up to 3 options</span></div>
   <div class="progress"><span class="progress-dot on"></span><span></span><span></span><small>1 minute request</small></div>
   <form id="requestForm">
-    <div class="grid"><label>Your name<input name="name" required minlength="2" placeholder="e.g. Rahul Kumar"></label><label>Phone / WhatsApp<input name="phone" required minlength="7" inputmode="tel" placeholder="9876543210"></label></div>
-    <div class="grid"><label>City<input name="city" required value="Guwahati" placeholder="Guwahati"></label><label>Festival<select name="festival" id="festivalSelect"><option>Diwali</option><option>Durga Puja</option><option>Dussehra</option><option>Chhath Puja</option><option>Ganesh Chaturthi</option><option>Navratri</option><option>Other Festival</option></select></label></div>
+    <div class="grid"><label>Your name<input name="name" autocomplete="name" required minlength="2" placeholder="e.g. Rahul Kumar"></label><label>Phone / WhatsApp<input name="phone" autocomplete="tel" required minlength="7" inputmode="tel" placeholder="9876543210"></label></div>
+    <div class="grid"><label>City<input name="city" autocomplete="address-level2" required value="Guwahati" placeholder="Guwahati"></label><label>Festival<select name="festival" id="festivalSelect"><option>Diwali</option><option>Durga Puja</option><option>Dussehra</option><option>Chhath Puja</option><option>Ganesh Chaturthi</option><option>Navratri</option><option>Other Festival</option></select></label></div>
     <div class="service-picker"><label>What do you need?</label><div class="service-chips" id="serviceChips">
       <button type="button" class="service-chip active" data-service="Decoration / Lighting">🪔 Decoration</button>
       <button type="button" class="service-chip" data-service="Photographer">📸 Photography</button>
@@ -68,7 +69,7 @@
       <button type="button" class="service-chip" data-service="Chhath Services">🌅 Chhath Services</button>
     </div><input type="hidden" name="service" id="serviceInput" value="Decoration / Lighting"></div>
     <div class="grid"><label>Event date<input type="date" name="event_date" required></label><label>Budget<select name="budget"><option>Under ₹5,000</option><option>₹5,000–₹10,000</option><option>₹10,000–₹25,000</option><option>₹25,000–₹50,000</option><option>₹50,000+</option><option>Not sure</option></select></label></div>
-    <div class="grid"><label>Email <span class="optional">(optional)</span><input name="email" type="email" placeholder="you@example.com"></label><label>Preferred style <span class="optional">(optional)</span><select name="style"><option value="">No preference</option><option>Traditional</option><option>Modern</option><option>Minimal</option><option>Premium</option></select></label></div>
+    <div class="grid"><label>Email <span class="optional">(optional)</span><input name="email" autocomplete="email" type="email" placeholder="you@example.com"></label><label>Preferred style <span class="optional">(optional)</span><select name="style"><option value="">No preference</option><option>Traditional</option><option>Modern</option><option>Minimal</option><option>Premium</option></select></label></div>
     <label>Requirement details<textarea name="details" rows="5" maxlength="2000" placeholder="Example: 3BHK home, balcony + entrance decoration, traditional look, installation on the morning of the event."></textarea><small class="counter"><span id="count">0</span>/2000</small></label>
     <button id="submitBtn" class="submit-btn">Find my options <span>→</span></button>
     <div id="msg" class="msg"></div>
