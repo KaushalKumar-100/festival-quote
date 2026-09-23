@@ -4,3 +4,5 @@ Disallow: /admin
 Disallow: /track.html
 
 Disallow: /my-requests.html
+
+Disallow: /provider.html
