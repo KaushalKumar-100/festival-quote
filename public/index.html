@@ -1,34 +1,138 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="FestivalQuote helps you get comparable local festival service options."><title>FestivalQuote — Local festival services, without the calling</title><link rel="stylesheet" href="/styles.css"></head>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="FestivalQuote helps Indian families and businesses compare local festival service options without calling dozens of providers.">
+<meta name="theme-color" content="#c96b32">
+<title>FestivalQuote — Festival services, sorted for you</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
 <body>
-<header><div class="nav"><a class="brand" href="/">Festival<span>Quote</span></a><div class="navlinks"><a href="#how">How it works</a><a href="#request">Request quotes</a><a class="navcta" href="/track.html">Track request</a></div></div></header>
+<header>
+  <div class="nav">
+    <a class="brand" href="/">Festival<span>Quote</span></a>
+    <nav class="navlinks">
+      <a href="#festivals">Festivals</a><a href="#how">How it works</a><a href="#faq">FAQ</a>
+      <a class="navcta" href="#request">Get quotes →</a>
+    </nav>
+  </div>
+</header>
+
 <main>
-<section class="hero"><div><p class="eyebrow">FESTIVAL SEASON 2026 • GUWAHATI FIRST</p><h1>One request.<br><em>Real local options.</em></h1><p class="sub">Tell us what you need for Diwali, Durga Puja, Dussehra, Chhath and other festivals. We source relevant local providers and return comparable options so you don't have to call around.</p><div class="hero-actions"><a class="primary" href="#request">Get up to 3 quotes →</a><a class="secondary" href="#how">See how it works</a></div></div><div class="card trust"><div class="trusttitle">What happens next</div><div><b>01</b><span>Tell us your city, date, budget and requirement.</span></div><div><b>02</b><span>We contact relevant local providers.</span></div><div><b>03</b><span>We compare availability, package and price.</span></div><div><b>04</b><span>You choose and pay the provider directly.</span></div></div></section>
+<section class="hero">
+  <div class="hero-copy">
+    <div class="live-pill"><span></span> Festival season is here • Guwahati launch</div>
+    <p class="eyebrow">ONE REQUEST • MULTIPLE LOCAL OPTIONS</p>
+    <h1>Plan the celebration.<br><em>Skip the calling.</em></h1>
+    <p class="sub">Tell FestivalQuote what you need for Diwali, Durga Puja, Chhath and more. We source relevant local providers and bring their options together so you can compare before you book.</p>
+    <div class="hero-actions"><a class="primary" href="#request">Get up to 3 quotes →</a><a class="secondary" href="#how">How it works</a></div>
+    <div class="micro-trust"><span>✓ Customer request is free during launch</span><span>✓ Pay the provider directly</span><span>✓ No spammy listing hunt</span></div>
+  </div>
+  <div class="hero-panel">
+    <div class="festival-card">
+      <div class="festival-top"><span id="heroFestival">Diwali</span><span id="heroDate">Festival season</span></div>
+      <div class="countdown"><div><b id="days">--</b><small>days</small></div><div><b id="hours">--</b><small>hours</small></div><div><b id="mins">--</b><small>min</small></div></div>
+      <p>Need decoration, catering, photography, puja help or gifting?</p>
+      <a href="#request" class="panel-link">Tell us what you need →</a>
+    </div>
+    <div class="mini-proof"><b>1 request</b><span>We do the provider calling for you.</span></div>
+  </div>
+</section>
 
-<section id="request" class="form-card"><div class="section-head"><div><p class="eyebrow">FREE DURING LAUNCH</p><h2>Tell us what you need</h2></div><span>Usually up to 3 options</span></div>
-<form id="requestForm">
-<div class="grid"><label>Name<input name="name" required minlength="2" placeholder="Your name"></label><label>Phone / WhatsApp<input name="phone" required minlength="7" placeholder="9876543210"></label></div>
-<div class="grid"><label>City<input name="city" required value="Guwahati" placeholder="Guwahati"></label><label>Festival<select name="festival"><option>Diwali</option><option>Durga Puja</option><option>Dussehra</option><option>Chhath Puja</option><option>Ganesh Chaturthi</option><option>Navratri</option><option>Other Festival</option></select></label></div>
-<div class="grid"><label>Service<select name="service"><option>Decoration / Lighting</option><option>Photographer</option><option>Caterer</option><option>Pandit / Puja Service</option><option>Puja Material</option><option>Corporate / Festival Gifting</option><option>Event Planning</option><option>Chhath Services</option><option>Other Festival Service</option></select></label><label>Event date<input type="date" name="event_date" required></label></div>
-<div class="grid"><label>Budget<select name="budget"><option>Under ₹5,000</option><option>₹5,000–₹10,000</option><option>₹10,000–₹25,000</option><option>₹25,000–₹50,000</option><option>₹50,000+</option><option>Not sure</option></select></label><label>Email (optional)<input name="email" type="email" placeholder="you@example.com"></label></div>
-<label>Requirement details<textarea name="details" rows="5" maxlength="2000" placeholder="Example: 3BHK home, balcony + entrance decoration, traditional look, installation on the morning of the event."></textarea></label>
-<button id="submitBtn">Find my options →</button><div id="msg" class="msg"></div>
-</form></section>
+<section id="festivals" class="section">
+  <div class="section-title"><div><p class="eyebrow">FESTIVALS WE CAN HELP WITH</p><h2>One place for the season</h2></div><p>Choose a festival to pre-fill your request.</p></div>
+  <div class="festival-grid">
+    <button class="festival-tile active" data-festival="Diwali"><span>🪔</span><b>Diwali</b><small>Decor • lights • gifting</small></button>
+    <button class="festival-tile" data-festival="Durga Puja"><span>🙏</span><b>Durga Puja</b><small>Puja • pandit • catering</small></button>
+    <button class="festival-tile" data-festival="Dussehra"><span>🏹</span><b>Dussehra</b><small>Events • decor • food</small></button>
+    <button class="festival-tile" data-festival="Chhath Puja"><span>🌅</span><b>Chhath Puja</b><small>Samagri • services • catering</small></button>
+    <button class="festival-tile" data-festival="Ganesh Chaturthi"><span>🐘</span><b>Ganesh Chaturthi</b><small>Decor • puja • photography</small></button>
+    <button class="festival-tile" data-festival="Navratri"><span>✨</span><b>Navratri</b><small>Decor • events • gifting</small></button>
+  </div>
+</section>
 
-<section id="how" class="steps"><div><span>01</span><h3>Submit once</h3><p>No need to hunt through dozens of listings.</p></div><div><span>02</span><h3>We source</h3><p>We shortlist relevant local providers for your request.</p></div><div><span>03</span><h3>Compare</h3><p>See package, price and availability in one place.</p></div><div><span>04</span><h3>You decide</h3><p>You deal directly with the provider and pay them.</p></div></section>
+<section id="request" class="form-card">
+  <div class="section-head"><div><p class="eyebrow">FREE DURING LAUNCH</p><h2>Tell us what you need</h2><p class="form-intro">Give us the basics. Our job is to turn this into useful local options.</p></div><span class="quote-badge">Usually up to 3 options</span></div>
+  <div class="progress"><span class="progress-dot on"></span><span></span><span></span><small>1 minute request</small></div>
+  <form id="requestForm">
+    <div class="grid"><label>Your name<input name="name" required minlength="2" placeholder="e.g. Rahul Kumar"></label><label>Phone / WhatsApp<input name="phone" required minlength="7" inputmode="tel" placeholder="9876543210"></label></div>
+    <div class="grid"><label>City<input name="city" required value="Guwahati" placeholder="Guwahati"></label><label>Festival<select name="festival" id="festivalSelect"><option>Diwali</option><option>Durga Puja</option><option>Dussehra</option><option>Chhath Puja</option><option>Ganesh Chaturthi</option><option>Navratri</option><option>Other Festival</option></select></label></div>
+    <div class="service-picker"><label>What do you need?</label><div class="service-chips" id="serviceChips">
+      <button type="button" class="service-chip active" data-service="Decoration / Lighting">🪔 Decoration</button>
+      <button type="button" class="service-chip" data-service="Photographer">📸 Photography</button>
+      <button type="button" class="service-chip" data-service="Caterer">🍱 Catering</button>
+      <button type="button" class="service-chip" data-service="Pandit / Puja Service">🙏 Puja / Pandit</button>
+      <button type="button" class="service-chip" data-service="Puja Material">🛕 Puja Material</button>
+      <button type="button" class="service-chip" data-service="Corporate / Festival Gifting">🎁 Gifting</button>
+      <button type="button" class="service-chip" data-service="Event Planning">🎪 Event Planning</button>
+      <button type="button" class="service-chip" data-service="Chhath Services">🌅 Chhath Services</button>
+    </div><input type="hidden" name="service" id="serviceInput" value="Decoration / Lighting"></div>
+    <div class="grid"><label>Event date<input type="date" name="event_date" required></label><label>Budget<select name="budget"><option>Under ₹5,000</option><option>₹5,000–₹10,000</option><option>₹10,000–₹25,000</option><option>₹25,000–₹50,000</option><option>₹50,000+</option><option>Not sure</option></select></label></div>
+    <div class="grid"><label>Email <span class="optional">(optional)</span><input name="email" type="email" placeholder="you@example.com"></label><label>Preferred style <span class="optional">(optional)</span><select name="style"><option value="">No preference</option><option>Traditional</option><option>Modern</option><option>Minimal</option><option>Premium</option></select></label></div>
+    <label>Requirement details<textarea name="details" rows="5" maxlength="2000" placeholder="Example: 3BHK home, balcony + entrance decoration, traditional look, installation on the morning of the event."></textarea><small class="counter"><span id="count">0</span>/2000</small></label>
+    <button id="submitBtn" class="submit-btn">Find my options <span>→</span></button>
+    <div id="msg" class="msg"></div>
+  </form>
+</section>
 
-<section class="categories"><p class="eyebrow">POPULAR FESTIVAL NEEDS</p><div class="catgrid"><div>🪔 <b>Diwali</b><small>Decor, lights, gifting</small></div><div>🙏 <b>Puja</b><small>Pandit, samagri, services</small></div><div>🍱 <b>Catering</b><small>Home & event food</small></div><div>📸 <b>Photography</b><small>Events & celebrations</small></div><div>🎁 <b>Gifting</b><small>Corporate & festive</small></div><div>🌅 <b>Chhath</b><small>Seasonal services</small></div></div></section>
+<section id="how" class="section how-section">
+  <div class="section-title"><div><p class="eyebrow">HOW FESTIVALQUOTE WORKS</p><h2>Less searching. More celebrating.</h2></div></div>
+  <div class="steps">
+    <div><span>01</span><div class="step-icon">📝</div><h3>Tell us once</h3><p>Share your city, festival, date, budget and requirement.</p></div>
+    <div><span>02</span><div class="step-icon">📞</div><h3>We source locally</h3><p>We contact relevant providers instead of making you call around.</p></div>
+    <div><span>03</span><div class="step-icon">⚖️</div><h3>Compare options</h3><p>We organize price, package and availability in one place.</p></div>
+    <div><span>04</span><div class="step-icon">🎉</div><h3>You choose</h3><p>You decide directly with the provider and pay them.</p></div>
+  </div>
+</section>
 
-<section class="provider-banner"><div><p class="eyebrow">FOR LOCAL PROVIDERS</p><h2>Get relevant festival enquiries.</h2><p>We send requests based on city and service. Provider participation is separate from the customer quote request.</p></div><a href="https://wa.me/?text=Hi%20FestivalQuote%2C%20I%20am%20a%20local%20provider%20and%20want%20to%20receive%20festival%20leads." target="_blank" rel="noopener" class="secondary">Talk to FestivalQuote</a></section>
+<section class="service-section">
+  <div class="section-title"><div><p class="eyebrow">POPULAR NEEDS</p><h2>What can we source?</h2></div><p>Tap any service to jump to the request form.</p></div>
+  <div class="service-grid">
+    <button data-jump-service="Decoration / Lighting"><span>🪔</span><b>Decoration & Lighting</b><small>Home, office, venue & festive setups</small></button>
+    <button data-jump-service="Photographer"><span>📸</span><b>Photography</b><small>Family events, puja & celebrations</small></button>
+    <button data-jump-service="Caterer"><span>🍱</span><b>Catering</b><small>Home meals, parties & events</small></button>
+    <button data-jump-service="Pandit / Puja Service"><span>🙏</span><b>Puja & Pandit</b><small>Puja services and ceremony support</small></button>
+    <button data-jump-service="Puja Material"><span>🛕</span><b>Puja Material</b><small>Samagri and festival essentials</small></button>
+    <button data-jump-service="Corporate / Festival Gifting"><span>🎁</span><b>Festival Gifting</b><small>Hampers and corporate gifts</small></button>
+    <button data-jump-service="Event Planning"><span>🎪</span><b>Event Planning</b><small>Planning, coordination & vendors</small></button>
+    <button data-jump-service="Chhath Services"><span>🌅</span><b>Chhath Services</b><small>Seasonal services and requirements</small></button>
+  </div>
+</section>
+
+<section class="why-grid">
+  <div class="why-card dark"><p class="eyebrow">THE DIFFERENCE</p><h2>Not another directory.</h2><p>You don't get 50 listings and another job to do. You send one requirement. We work on the sourcing and bring back a small set of relevant options.</p><div class="why-list"><span>✓ Human-verified availability before a quote</span><span>✓ Clear package and price information</span><span>✓ Direct payment to the selected provider</span></div></div>
+  <div class="why-card"><p class="eyebrow">PRIVATE TRACKING</p><h2>Your request gets its own link.</h2><p>After submitting, you'll receive a private tracking link. Reopen it anytime to see your request status and available quotes.</p><a class="secondary" href="/track.html">Open tracker →</a></div>
+</section>
+
+<section id="faq" class="faq-section">
+  <div class="section-title"><div><p class="eyebrow">QUESTIONS</p><h2>Good to know</h2></div></div>
+  <div class="faq">
+    <details open><summary>Does it cost the customer anything?</summary><p>FestivalQuote is free for customers during the launch validation period. You pay the provider directly if you choose to book.</p></details>
+    <details><summary>Are the providers guaranteed?</summary><p>No. Provider availability and pricing must be verified for your specific date and requirement before a quote is presented as available.</p></details>
+    <details><summary>How many options will I receive?</summary><p>We aim to return up to three relevant options when enough suitable providers are available.</p></details>
+    <details><summary>What cities are supported?</summary><p>Guwahati is the initial launch city. You can still submit a request for another city and we'll use it to measure demand for expansion.</p></details>
+  </div>
+</section>
+
+<section class="provider-banner"><div><p class="eyebrow">ARE YOU A LOCAL PROVIDER?</p><h2>Get relevant festival enquiries.</h2><p>Tell us your service and city. Provider participation is separate from customer quote requests.</p></div><a href="https://wa.me/?text=Hi%20FestivalQuote%2C%20I%20am%20a%20local%20provider%20and%20want%20to%20receive%20festival%20leads." target="_blank" rel="noopener" class="secondary">Talk to FestivalQuote →</a></section>
 </main>
-<footer><div>FestivalQuote • Remote festival-service sourcing</div><a href="/track.html">Track a request</a></footer>
+
+<footer><div><b>FestivalQuote</b> • Remote festival-service sourcing</div><div><a href="/track.html">Track a request</a><span>•</span><a href="#request">Get quotes</a></div></footer>
+
+<div id="toast" class="toast"></div>
 <script>
-const form=document.getElementById("requestForm"),msg=document.getElementById("msg"),btn=document.getElementById("submitBtn");
-form.addEventListener("submit",async e=>{e.preventDefault();btn.disabled=true;btn.textContent="Finding options…";msg.textContent="";
-try{const r=await fetch("/api/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.fromEntries(new FormData(form)))});
-const j=await r.json();if(!r.ok)throw Error(j.detail||"Could not submit");
-msg.innerHTML='<strong>Request #'+j.id+' received.</strong> Save your private tracking link to check quotes and status: <a href="'+j.tracking_path+'">Track my request →</a>';
-form.reset();window.scrollTo({top:document.getElementById("request").offsetTop-20,behavior:"smooth"});
-}catch(err){msg.textContent=err.message||"Could not submit. Please try again."}finally{btn.disabled=false;btn.textContent="Find my options →"}});
-document.querySelector('input[name="event_date"]').min=new Date().toISOString().slice(0,10);
-</script></body></html>
+const form=document.getElementById("requestForm"),msg=document.getElementById("msg"),btn=document.getElementById("submitBtn"),serviceInput=document.getElementById("serviceInput"),festivalSelect=document.getElementById("festivalSelect"),details=document.querySelector('textarea[name="details"]'),count=document.getElementById("count");
+const today=new Date(); document.querySelector('input[name="event_date"]').min=today.toISOString().slice(0,10);
+function selectService(value){serviceInput.value=value;document.querySelectorAll(".service-chip").forEach(x=>x.classList.toggle("active",x.dataset.service===value));}
+document.querySelectorAll(".service-chip").forEach(x=>x.addEventListener("click",()=>selectService(x.dataset.service)));
+document.querySelectorAll("[data-jump-service]").forEach(x=>x.addEventListener("click",()=>{selectService(x.dataset.jumpService);document.getElementById("request").scrollIntoView({behavior:"smooth",block:"start"});}));
+document.querySelectorAll("[data-festival]").forEach(x=>x.addEventListener("click",()=>{festivalSelect.value=x.dataset.festival;document.querySelectorAll(".festival-tile").forEach(t=>t.classList.toggle("active",t===x));document.getElementById("request").scrollIntoView({behavior:"smooth",block:"start"});}));
+details.addEventListener("input",()=>count.textContent=details.value.length);
+form.addEventListener("submit",async e=>{e.preventDefault();btn.disabled=true;btn.innerHTML="Sending your request <span class='spinner'></span>";msg.textContent="";
+const data=Object.fromEntries(new FormData(form)); const style=data.style;if(style)data.details=(data.details?data.details+"\n":"")+"Preferred style: "+style;delete data.style;
+try{const r=await fetch("/api/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});const text=await r.text();let j;try{j=JSON.parse(text)}catch{throw Error("Something went wrong while sending your request. Please try again.");}if(!r.ok)throw Error(j.detail||"Could not submit");
+msg.innerHTML='<div class="success-box"><strong>Request #'+j.id+' received 🎉</strong><span>Save your private tracking link. We will update it as options are sourced.</span><a href="'+j.tracking_path+'">Track my request →</a></div>';form.reset();selectService("Decoration / Lighting");count.textContent="0";window.scrollTo({top:document.getElementById("request").offsetTop-20,behavior:"smooth"});showToast("Your request was received.");}catch(err){msg.textContent=err.message||"Could not submit. Please try again."}finally{btn.disabled=false;btn.innerHTML='Find my options <span>→</span>'}});
+function showToast(t){const toast=document.getElementById("toast");toast.textContent=t;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3200);}
+const target=new Date("2026-10-20T00:00:00+05:30");function tick(){let ms=Math.max(0,target-new Date()),d=Math.floor(ms/86400000),h=Math.floor(ms/3600000)%24,m=Math.floor(ms/60000)%60;document.getElementById("days").textContent=d;document.getElementById("hours").textContent=h;document.getElementById("mins").textContent=m;document.getElementById("heroDate").textContent="20 Oct 2026";}tick();setInterval(tick,30000);
+</script>
+</body></html>
