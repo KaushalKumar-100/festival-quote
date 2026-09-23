@@ -15,8 +15,8 @@ def db(request: Request):
     return request.scope["env"].DB
 
 
-def admin_guard(x_admin_key: str | None):
-    expected = os.getenv("ADMIN_KEY", "")
+def admin_guard(request: Request, x_admin_key: str | None):
+    expected = getattr(request.scope["env"], "ADMIN_KEY", "")
     if not expected or x_admin_key != expected:
         raise HTTPException(status_code=401, detail="Admin key required")
 
@@ -78,7 +78,7 @@ async def create_request(payload: RequestIn, request: Request):
 
 @app.get("/api/requests")
 async def list_requests(request: Request, x_admin_key: str | None = Header(default=None)):
-    admin_guard(x_admin_key)
+    admin_guard(request, x_admin_key)
     rows = await query(
         db(request),
         """SELECT id,name,phone,email,city,service,event_date,budget,details,status,created_at
