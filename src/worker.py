@@ -355,11 +355,13 @@ async def create_quote(
     admin_guard(request, x_admin_key)
     database = db(request)
     req = await database.prepare("SELECT id FROM requests WHERE id=?").bind(payload.request_id).first()
-    provider = await database.prepare("SELECT id,lead_fee FROM providers WHERE id=?").bind(payload.provider_id).first()
+    provider = await database.prepare("SELECT id,lead_fee,active FROM providers WHERE id=?").bind(payload.provider_id).first()
     if not req:
         raise HTTPException(status_code=400, detail="Request not found")
     if not provider:
         raise HTTPException(status_code=400, detail="Provider not found")
+    if not provider["active"]:
+        raise HTTPException(status_code=409, detail="Provider is inactive")
     fee = payload.lead_fee if payload.lead_fee else int(provider["lead_fee"] or 0)
     result = await database.prepare(
         """INSERT INTO quotes
