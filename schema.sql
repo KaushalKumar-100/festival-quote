@@ -4,16 +4,19 @@ CREATE TABLE IF NOT EXISTS requests (
   phone TEXT NOT NULL,
   email TEXT,
   city TEXT NOT NULL,
+  festival TEXT NOT NULL DEFAULT 'Other Festival',
   service TEXT NOT NULL,
   event_date TEXT NOT NULL,
   budget TEXT NOT NULL,
   details TEXT DEFAULT '',
   status TEXT NOT NULL DEFAULT 'new',
+  tracking_token TEXT NOT NULL UNIQUE,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_requests_status ON requests(status);
 CREATE INDEX IF NOT EXISTS idx_requests_city_service ON requests(city, service);
+CREATE INDEX IF NOT EXISTS idx_requests_tracking ON requests(id, tracking_token);
 
 CREATE TABLE IF NOT EXISTS providers (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,8 +27,9 @@ CREATE TABLE IF NOT EXISTS providers (
   whatsapp TEXT,
   source_url TEXT,
   notes TEXT DEFAULT '',
-  lead_fee INTEGER DEFAULT 0,
-  active INTEGER NOT NULL DEFAULT 1
+  lead_fee INTEGER DEFAULT 150,
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_providers_city_service ON providers(city, service);
@@ -38,12 +42,17 @@ CREATE TABLE IF NOT EXISTS quotes (
   package TEXT DEFAULT '',
   availability TEXT DEFAULT 'unknown',
   response_note TEXT DEFAULT '',
+  lead_fee INTEGER DEFAULT 0,
+  lead_status TEXT NOT NULL DEFAULT 'pending',
+  customer_selected INTEGER NOT NULL DEFAULT 0,
+  provider_paid INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY(request_id) REFERENCES requests(id),
   FOREIGN KEY(provider_id) REFERENCES providers(id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_quotes_request ON quotes(request_id);
+CREATE INDEX IF NOT EXISTS idx_quotes_lead_status ON quotes(lead_status);
 
 INSERT OR IGNORE INTO providers (id,name,city,service,phone,source_url,notes,lead_fee) VALUES
 (1,'Magic Moments Party Planners - Guwahati','Guwahati','Decoration / Event Planning','+91 76380 62984','https://www.google.com/maps/search/?api=1&query=Magic+Moments+Party+Planners+Guwahati','Real local-business listing; verify festival availability and pricing.',150),
