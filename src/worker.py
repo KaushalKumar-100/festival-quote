@@ -314,6 +314,45 @@ async def track_request(request: Request, id: int, token: str):
     return {"request": req, "quotes": quotes}
 
 
+class RequestUpdateIn(BaseModel):
+    name: str = Field(min_length=2, max_length=120)
+    phone: str = Field(min_length=7, max_length=30)
+    email: str | None = Field(default=None, max_length=254)
+    city: str = Field(min_length=2, max_length=100)
+    festival: str = Field(default="Other Festival", max_length=100)
+    service: str = Field(min_length=2, max_length=100)
+    event_date: date
+    budget: str = Field(min_length=1, max_length=60)
+    details: str = Field(default="", max_length=2000)
+
+
+@app.patch("/api/requests/{request_id}")
+async def update_request(
+    request_id: int,
+    payload: RequestUpdateIn,
+    request: Request,
+    x_request_token: str | None = Header(default=None),
+):
+    if not x_request_token:
+        raise HTTPException(status_code=401, detail="Request token required")
+    database = db(request)
+    existing = await database.prepare(
+        "SELECT id FROM requests WHERE id=? AND tracking_token=?"
+    ).bind(request_id, x_request_token).first()
+    if not existing:
+        raise HTTPException(status_code=404, detail="Request not found")
+    await database.prepare(
+        """UPDATE requests
+           SET name=?,phone=?,email=?,city=?,festival=?,service=?,event_date=?,budget=?,details=?
+           WHERE id=? AND tracking_token=?"""
+    ).bind(
+        payload.name, payload.phone, payload.email, payload.city, payload.festival,
+        payload.service, payload.event_date.isoformat(), payload.budget, payload.details,
+        request_id, x_request_token
+    ).run()
+    return {"id": request_id, "updated": True}
+
+
 @app.get("/api/stats")
 async def stats(request: Request, x_admin_key: str | None = Header(default=None)):
     admin_guard(request, x_admin_key)
