@@ -2,11 +2,11 @@ import secrets
 from datetime import date
 
 from fastapi import FastAPI, Header, HTTPException, Request
-from fastapi.responses import Response
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
 from workers import asgi
 
-app = FastAPI(title="FestivalQuote API", version="1.0.0")
+app = FastAPI(title="FestivalQuote API", version="1.1.0")
 Default = asgi.entrypoint(app)
 
 
@@ -25,10 +25,32 @@ async def rows(database, sql, *params):
     return result.results
 
 
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    if request.url.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store"
+    if request.url.scheme == "https":
+        response.headers["Strict-Transport-Security"] = "max-age=31536000"
+    return response
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Something went wrong. Please try again."},
+    )
+
+
 class RequestIn(BaseModel):
     name: str = Field(min_length=2, max_length=120)
     phone: str = Field(min_length=7, max_length=30)
-    email: str | None = None
+    email: str | None = Field(default=None, max_length=254)
     city: str = Field(min_length=2, max_length=100)
     festival: str = Field(default="Other Festival", max_length=100)
     service: str = Field(min_length=2, max_length=100)
@@ -41,10 +63,10 @@ class ProviderIn(BaseModel):
     name: str = Field(min_length=2, max_length=160)
     city: str = Field(min_length=2, max_length=100)
     service: str = Field(min_length=2, max_length=160)
-    phone: str = ""
-    whatsapp: str | None = None
-    source_url: str | None = None
-    notes: str = ""
+    phone: str = Field(default="", max_length=30)
+    whatsapp: str | None = Field(default=None, max_length=30)
+    source_url: str | None = Field(default=None, max_length=500)
+    notes: str = Field(default="", max_length=2000)
     lead_fee: int = Field(default=150, ge=0, le=100000)
 
 
@@ -52,9 +74,9 @@ class QuoteIn(BaseModel):
     request_id: int
     provider_id: int
     price: int | None = Field(default=None, ge=0)
-    package: str = ""
-    availability: str = "unknown"
-    response_note: str = ""
+    package: str = Field(default="", max_length=1000)
+    availability: str = Field(default="unknown", max_length=40)
+    response_note: str = Field(default="", max_length=2000)
     lead_fee: int = Field(default=0, ge=0, le=100000)
 
 
@@ -113,7 +135,12 @@ async def list_requests(
         sql += " AND (r.name LIKE ? OR r.phone LIKE ? OR r.service LIKE ? OR r.festival LIKE ?)"
         params.extend([f"%{q}%"] * 4)
     sql += " ORDER BY r.created_at DESC LIMIT 300"
-    return await rows(database, sql, *params)
+    items = await rows(database, sql, *params)
+    for item in items:
+        item["tracking_path"] = (
+            f"/track.html?id={item['id']}&token={item['tracking_token']}"
+        )
+    return items
 
 
 @app.get("/api/requests/{request_id}")
@@ -127,6 +154,7 @@ async def request_detail(
     req = await database.prepare("SELECT * FROM requests WHERE id=?").bind(request_id).first()
     if not req:
         raise HTTPException(status_code=404, detail="Request not found")
+    req["tracking_path"] = f"/track.html?id={req['id']}&token={req['tracking_token']}"
     quotes = await rows(
         database,
         """SELECT q.*,p.name AS provider,p.city AS provider_city,p.service AS provider_service,
@@ -149,7 +177,10 @@ async def update_request_status(
     allowed = {"new", "sourcing", "quotes_ready", "customer_contacted", "booked", "closed", "cancelled"}
     if status not in allowed:
         raise HTTPException(status_code=400, detail="Invalid status")
-    await rows(db(request), "UPDATE requests SET status=? WHERE id=?", status, request_id)
+    database = db(request)
+    result = await database.prepare("UPDATE requests SET status=? WHERE id=?").bind(status, request_id).run()
+    if not result.meta.changes:
+        raise HTTPException(status_code=404, detail="Request not found")
     return {"id": request_id, "status": status}
 
 
@@ -203,7 +234,10 @@ async def toggle_provider(
     x_admin_key: str | None = Header(default=None),
 ):
     admin_guard(request, x_admin_key)
-    await rows(db(request), "UPDATE providers SET active=? WHERE id=?", int(active), provider_id)
+    database = db(request)
+    result = await database.prepare("UPDATE providers SET active=? WHERE id=?").bind(int(active), provider_id).run()
+    if not result.meta.changes:
+        raise HTTPException(status_code=404, detail="Provider not found")
     return {"id": provider_id, "active": active}
 
 
@@ -245,11 +279,14 @@ async def update_quote_status(
     allowed = {"pending", "contacted", "accepted", "rejected", "paid", "waived"}
     if payload.lead_status not in allowed:
         raise HTTPException(status_code=400, detail="Invalid lead status")
-    await rows(
-        db(request),
-        "UPDATE quotes SET lead_status=?,customer_selected=?,provider_paid=? WHERE id=?",
+    database = db(request)
+    result = await database.prepare(
+        "UPDATE quotes SET lead_status=?,customer_selected=?,provider_paid=? WHERE id=?"
+    ).bind(
         payload.lead_status, int(payload.customer_selected), int(payload.provider_paid), quote_id
-    )
+    ).run()
+    if not result.meta.changes:
+        raise HTTPException(status_code=404, detail="Quote not found")
     return {"id": quote_id, **payload.model_dump()}
 
 
@@ -264,7 +301,7 @@ async def track_request(request: Request, id: int, token: str):
         raise HTTPException(status_code=404, detail="Request not found")
     quotes = await rows(
         database,
-        """SELECT q.id,q.price,q.package,q.availability,q.response_note,q.lead_status,
+        """SELECT q.id,q.price,q.package,q.availability,q.response_note,
                   p.name AS provider,p.phone,p.whatsapp,p.source_url
            FROM quotes q JOIN providers p ON p.id=q.provider_id
            WHERE q.request_id=? ORDER BY q.price IS NULL,q.price ASC""",
