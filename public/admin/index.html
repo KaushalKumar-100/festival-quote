@@ -1,31 +1,190 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FestivalQuote Operations</title><link rel="stylesheet" href="/admin/styles.css"></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Private FestivalQuote operations dashboard">
+<title>FestivalQuote — Operations</title>
+<link rel="stylesheet" href="/admin/styles.css">
+</head>
+<body>
 <main>
-<section id="login" class="login"><p class="eyebrow">FESTIVALQUOTE</p><h1>Operations dashboard</h1><p>Private workspace for requests, providers, quotes and lead revenue.</p><input id="key" type="password" placeholder="Admin key" autocomplete="current-password"><button onclick="openDash()">Open dashboard</button><p id="loginMsg" class="msg"></p></section>
+<section id="login" class="login">
+  <div class="login-mark">FQ</div>
+  <p class="eyebrow">FESTIVALQUOTE OPERATIONS</p>
+  <h1>Run the festival pipeline.</h1>
+  <p class="login-copy">Manage customer requests, provider supply, quotes and lead revenue from one private workspace.</p>
+  <form id="loginForm">
+    <label for="key">Admin key</label>
+    <input id="key" type="password" placeholder="Enter your admin key" autocomplete="current-password" required>
+    <button id="loginBtn" type="submit">Open dashboard <span>→</span></button>
+  </form>
+  <p id="loginMsg" class="msg" role="alert"></p>
+</section>
+
 <section id="dash" hidden>
-<header class="top"><div><a class="brand" href="/">Festival<span>Quote</span></a><p>Festival operations</p></div><button class="ghost" onclick="location.reload()">Lock</button></header>
-<div id="stats" class="stats"></div>
-<div class="tabs"><button class="tab active" data-tab="requestsTab">Requests</button><button class="tab" data-tab="providersTab">Providers</button><button class="tab" data-tab="quotesTab">Quote builder</button></div>
-<section id="requestsTab" class="tabbody"><div class="toolbar"><input id="search" placeholder="Search name, phone, service…"><select id="statusFilter"><option value="">All statuses</option><option>new</option><option>sourcing</option><option>quotes_ready</option><option>customer_contacted</option><option>booked</option><option>closed</option><option>cancelled</option></select><button onclick="loadRequests()">Refresh</button></div><div id="requests"></div></section>
-<section id="providersTab" class="tabbody" hidden><div class="panel"><h2>Add provider</h2><form id="provider"><div class="grid"><input name="name" placeholder="Provider/business name" required><input name="city" placeholder="City" required><input name="service" placeholder="Service/category" required><input name="phone" placeholder="Phone"><input name="whatsapp" placeholder="WhatsApp number"><input name="source_url" placeholder="Google Maps / website URL"><input name="lead_fee" type="number" min="0" value="150"><input name="notes" placeholder="Verification notes"></div><button>Add provider</button><p id="providerMsg" class="msg"></p></form></div><div class="toolbar"><input id="providerSearch" placeholder="Filter providers"><button onclick="loadProviders()">Refresh</button></div><div id="providers"></div></section>
-<section id="quotesTab" class="tabbody" hidden><div class="panel"><h2>Create a quote</h2><p class="muted">Use this after you have contacted a provider and verified availability/price.</p><form id="quoteForm"><div class="grid"><input name="request_id" type="number" placeholder="Request ID" required><select name="provider_id" id="providerSelect" required><option value="">Select provider</option></select><input name="price" type="number" min="0" placeholder="Price ₹"><input name="lead_fee" type="number" min="0" value="150" placeholder="Lead fee ₹"><input name="package" placeholder="Package / inclusions"><select name="availability"><option>available</option><option>limited</option><option>unavailable</option><option>unknown</option></select></div><textarea name="response_note" placeholder="Provider response, timings, exclusions, delivery notes…"></textarea><button>Create quote</button><p id="quoteMsg" class="msg"></p></form></div></section>
-</section></main>
+<header class="top">
+  <div><a class="brand" href="/">Festival<span>Quote</span></a><p>Private festival operations</p></div>
+  <div class="top-actions"><span class="live-dot">● Live</span><button class="ghost" id="lockBtn" type="button">Lock</button></div>
+</header>
+
+<div id="stats" class="stats" aria-live="polite"></div>
+
+<div class="tabs" role="tablist" aria-label="Operations sections">
+  <button class="tab active" data-tab="requestsTab" role="tab">Requests</button>
+  <button class="tab" data-tab="providersTab" role="tab">Providers</button>
+  <button class="tab" data-tab="quotesTab" role="tab">Quote builder</button>
+</div>
+
+<section id="requestsTab" class="tabbody" role="tabpanel">
+  <div class="toolbar">
+    <div class="searchbox"><span>⌕</span><input id="search" aria-label="Search requests" placeholder="Search name, phone, service, festival…"></div>
+    <select id="statusFilter" aria-label="Filter by status">
+      <option value="">All statuses</option><option value="new">New</option><option value="sourcing">Sourcing</option>
+      <option value="quotes_ready">Quotes ready</option><option value="customer_contacted">Customer contacted</option>
+      <option value="booked">Booked</option><option value="closed">Closed</option><option value="cancelled">Cancelled</option>
+    </select>
+    <button id="refreshRequests" class="ghost" type="button">↻ Refresh</button>
+  </div>
+  <div id="requests" aria-live="polite"></div>
+</section>
+
+<section id="providersTab" class="tabbody" role="tabpanel" hidden>
+  <div class="panel intro-panel"><div><p class="eyebrow">SUPPLY</p><h2>Provider network</h2><p class="muted">Keep leads inactive until availability, contact details and pricing are verified.</p></div><span class="pill">Remote-first</span></div>
+  <div class="panel">
+    <h2>Add provider</h2>
+    <form id="provider">
+      <div class="grid">
+        <label>Business name<input name="name" placeholder="Provider/business name" required minlength="2"></label>
+        <label>City<input name="city" placeholder="Guwahati" required></label>
+        <label>Service/category<input name="service" placeholder="Decoration / Photography" required></label>
+        <label>Phone<input name="phone" placeholder="+91…"></label>
+        <label>WhatsApp<input name="whatsapp" placeholder="+91…"></label>
+        <label>Google Maps / website<input name="source_url" type="url" placeholder="https://…"></label>
+        <label>Lead fee ₹<input name="lead_fee" type="number" min="0" max="100000" value="150"></label>
+        <label>Verification notes<input name="notes" placeholder="What still needs verification?"></label>
+      </div>
+      <button id="providerBtn" type="submit">Add provider <span>→</span></button>
+      <p id="providerMsg" class="msg" role="status"></p>
+    </form>
+  </div>
+  <div class="toolbar"><div class="searchbox"><span>⌕</span><input id="providerSearch" aria-label="Filter providers" placeholder="Filter providers…"></div><button id="refreshProviders" class="ghost" type="button">↻ Refresh</button></div>
+  <div id="providers"></div>
+</section>
+
+<section id="quotesTab" class="tabbody" role="tabpanel" hidden>
+  <div class="panel">
+    <div class="panel-head"><div><p class="eyebrow">QUOTE BUILDER</p><h2>Create a customer option</h2><p class="muted">Use this only after contacting the provider and verifying availability, price and inclusions.</p></div><span class="pill">Customer pays provider directly</span></div>
+    <form id="quoteForm">
+      <div class="grid">
+        <label>Request ID<input name="request_id" type="number" min="1" placeholder="e.g. 2" required></label>
+        <label>Provider<select name="provider_id" id="providerSelect" required><option value="">Select active provider</option></select></label>
+        <label>Price ₹<input name="price" type="number" min="0" placeholder="Optional"></label>
+        <label>Lead fee ₹<input name="lead_fee" type="number" min="0" value="150"></label>
+        <label>Package / inclusions<input name="package" maxlength="1000" placeholder="What is included?"></label>
+        <label>Availability<select name="availability"><option value="available">Available</option><option value="limited">Limited</option><option value="unavailable">Unavailable</option><option value="unknown">Unknown</option></select></label>
+      </div>
+      <label>Provider response / notes<textarea name="response_note" maxlength="2000" placeholder="Timings, exclusions, delivery, installation, guest limits…"></textarea></label>
+      <button id="quoteBtn" type="submit">Create quote <span>→</span></button>
+      <p id="quoteMsg" class="msg" role="status"></p>
+    </form>
+  </div>
+</section>
+</section>
+</main>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 <script>
-let KEY="",requestsCache=[];
+let KEY="",requestsCache=[],providerCache=[],searchTimer;
+const STATUS=["new","sourcing","quotes_ready","customer_contacted","booked","closed","cancelled"];
+const QUOTE_STATUS=["pending","contacted","accepted","rejected","paid","waived"];
 const H=()=>({"X-Admin-Key":KEY,"Content-Type":"application/json"});
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function openDash(){KEY=document.getElementById("key").value;fetch("/api/stats",{headers:H()}).then(async r=>{if(!r.ok)throw 0;document.getElementById("login").hidden=true;document.getElementById("dash").hidden=false;await refreshAll()}).catch(()=>document.getElementById("loginMsg").textContent="Invalid admin key")}
+const label=s=>String(s||"").replaceAll("_"," ").replace(/\b\w/g,m=>m.toUpperCase());
+function toast(text,error=false){const el=document.getElementById("toast");el.textContent=text;el.className="toast show "+(error?"error":"");setTimeout(()=>el.className="toast",3000)}
+async function api(url,options={}){const r=await fetch(url,{...options,headers:{...H(),...(options.headers||{})}});const text=await r.text();let data={};try{data=text?JSON.parse(text):{}}catch{data={detail:"The server returned an unexpected response."}}if(!r.ok)throw Error(data.detail||"Request failed");return data}
+function setButton(btn,busy,text){if(!btn)return;btn.disabled=busy;if(busy){btn.dataset.oldText=btn.innerHTML;btn.innerHTML='<span class="spinner"></span> '+text}else if(btn.dataset.oldText){btn.innerHTML=btn.dataset.oldText;delete btn.dataset.oldText}}
+async function openDash(){
+ const key=document.getElementById("key").value.trim(),btn=document.getElementById("loginBtn"),msg=document.getElementById("loginMsg");
+ if(!key){msg.textContent="Enter your admin key.";return} KEY=key;setButton(btn,true,"Checking…");
+ try{await api("/api/stats");document.getElementById("login").hidden=true;document.getElementById("dash").hidden=false;await refreshAll();toast("Dashboard connected.");}
+ catch(e){KEY="";msg.textContent=e.message||"Invalid admin key."}
+ finally{setButton(btn,false)}
+}
 async function refreshAll(){await Promise.all([loadStats(),loadRequests(),loadProviders()])}
-async function loadStats(){const r=await fetch("/api/stats",{headers:H()});if(!r.ok)return;const s=await r.json();document.getElementById("stats").innerHTML=Object.entries(s).map(([k,v])=>'<div><span>'+esc(k.replaceAll("_"," "))+'</span><b>'+esc(v)+'</b></div>').join("")}
-async function loadRequests(){const q=document.getElementById("search").value,status=document.getElementById("statusFilter").value;const url="/api/requests?"+new URLSearchParams({q,status});const r=await fetch(url,{headers:H()});if(!r.ok)return;requestsCache=await r.json();renderRequests()}
-function renderRequests(){document.getElementById("requests").innerHTML=requestsCache.map(x=>'<article class="request"><div class="requesthead"><div><strong>#'+x.id+' '+esc(x.name)+'</strong><p>'+esc(x.festival)+' · '+esc(x.service)+' · '+esc(x.city)+' · '+esc(x.event_date)+'</p></div><select onchange="setStatus('+x.id+',this.value)">'+["new","sourcing","quotes_ready","customer_contacted","booked","closed","cancelled"].map(s=>'<option '+(s===x.status?"selected":"")+'>'+s+'</option>').join("")+'</select></div><p><b>Budget:</b> '+esc(x.budget)+' &nbsp; <b>Phone:</b> '+esc(x.phone)+' &nbsp; <b>Quotes:</b> '+esc(x.quote_count)+'</p><p class="details">'+esc(x.details||"No extra details")+'</p><div class="actions"><button class="small" onclick="openRequest('+x.id+')">View & manage quotes</button><button class="small ghost" onclick="openTrack('+x.id+')">Open customer tracker</button></div><div id="detail-'+x.id+'" class="detail" hidden></div></article>').join("")||'<div class="empty">No matching requests.</div>'}
-async function setStatus(id,status){const r=await fetch("/api/requests/"+id+"/status?status="+encodeURIComponent(status),{method:"PATCH",headers:H()});if(!r.ok)alert("Could not update status");await loadStats()}
-async function openRequest(id){const el=document.getElementById("detail-"+id);if(!el.hidden){el.hidden=true;return}const r=await fetch("/api/requests/"+id,{headers:H()});const j=await r.json();el.hidden=false;el.innerHTML='<h3>Request details</h3><p>'+esc(j.request.name)+' · '+esc(j.request.phone)+' · '+esc(j.request.email||"")+'</p><p>'+esc(j.request.details||"")+'</p><h3>Quotes</h3>'+ (j.quotes.length?j.quotes.map(q=>'<div class="quoteRow"><span><b>'+esc(q.provider)+'</b><br>'+esc(q.package||"")+' · '+esc(q.availability)+'<br>'+esc(q.response_note||"")+'</span><span>₹'+(q.price??"Ask")+'<br><small>Lead ₹'+q.lead_fee+' · '+esc(q.lead_status)+'</small></span></div>').join(""):'<p>No quotes yet.</p>')+'<button class="small" onclick="prefillQuote('+id+')">Create quote for this request</button>'}
-function openTrack(id){const x=requestsCache.find(r=>r.id===id);if(x)alert("The customer tracking link contains a private token. New links are returned when a request is created. Use the request response or database token to share it; do not publish it.")}
-async function loadProviders(){const r=await fetch("/api/providers?include_inactive=true",{headers:H()});if(!r.ok)return;const ps=await r.json();const filter=document.getElementById("providerSearch").value.toLowerCase();const filtered=ps.filter(p=>(p.name+" "+p.city+" "+p.service).toLowerCase().includes(filter));document.getElementById("providers").innerHTML=filtered.map(p=>'<article class="provider"><div><b>'+esc(p.name)+'</b><p>'+esc(p.city)+' · '+esc(p.service)+'</p><p>'+esc(p.phone||"No phone")+' · Lead ₹'+esc(p.lead_fee)+'</p></div><div><span class="badge '+(p.active?"on":"off")+'">'+(p.active?"Active":"Inactive")+'</span><button class="small" onclick="toggleProvider('+p.id+','+(!p.active)+')">'+(p.active?"Disable":"Activate")+'</button></div></article>').join("")||'<div class="empty">No providers.</div>';const sel=document.getElementById("providerSelect");sel.innerHTML='<option value="">Select provider</option>'+ps.filter(p=>p.active).map(p=>'<option value="'+p.id+'">'+esc(p.name)+' — '+esc(p.city)+'</option>').join("")}
-async function toggleProvider(id,active){await fetch("/api/providers/"+id+"/active?active="+active,{method:"PATCH",headers:H()});loadProviders();loadStats()}
-function prefillQuote(id){document.querySelector('[data-tab="quotesTab"]').click();document.querySelector('#quoteForm input[name="request_id"]').value=id;document.getElementById("quoteForm").scrollIntoView({behavior:"smooth"})}
-document.getElementById("provider").addEventListener("submit",async e=>{e.preventDefault();const r=await fetch("/api/providers",{method:"POST",headers:H(),body:JSON.stringify(Object.fromEntries(new FormData(e.target)))});document.getElementById("providerMsg").textContent=r.ok?"Provider added.":"Could not add provider.";if(r.ok){e.target.reset();loadProviders();loadStats()}})
-document.getElementById("quoteForm").addEventListener("submit",async e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.target));for(const k of ["request_id","provider_id","price","lead_fee"])if(data[k]==="")delete data[k];else if(k!=="package"&&k!=="availability"&&k!=="response_note")data[k]=Number(data[k]);const r=await fetch("/api/quotes",{method:"POST",headers:H(),body:JSON.stringify(data)});document.getElementById("quoteMsg").textContent=r.ok?"Quote created and request moved to quotes_ready.":"Could not create quote.";if(r.ok){e.target.reset();loadStats();loadRequests()}})
-document.getElementById("search").addEventListener("input",renderRequests);document.getElementById("statusFilter").addEventListener("change",loadRequests);document.getElementById("providerSearch").addEventListener("input",loadProviders);
-document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".tabbody").forEach(x=>x.hidden=true);b.classList.add("active");document.getElementById(b.dataset.tab).hidden=false});
-</script></body></html>
+async function loadStats(){
+ const el=document.getElementById("stats");el.innerHTML='<div class="skeleton-stat"></div>'.repeat(8);
+ try{const s=await api("/api/stats");const items=[["requests","Requests","◌"],["new","New","✦"],["sourcing","Sourcing","↗"],["quotes_ready","Quotes ready","✓"],["booked","Booked","★"],["providers","Active providers","♧"],["quotes","Quotes","▣"],["revenue","Lead revenue","₹"]];el.innerHTML=items.map(([k,t,i])=>'<div class="stat"><span class="stat-icon">'+i+'</span><span>'+t+'</span><b>'+(k==="revenue"?"₹"+Number(s[k]||0).toLocaleString("en-IN"):esc(s[k]??0))+'</b></div>').join("")}
+ catch(e){el.innerHTML='<div class="panel inline-error">Could not load dashboard stats. <button class="small ghost" onclick="loadStats()">Retry</button></div>'}
+}
+async function loadRequests(){
+ const el=document.getElementById("requests");el.innerHTML='<div class="loading-card"><span class="spinner dark"></span> Loading requests…</div>';
+ const q=document.getElementById("search").value.trim(),status=document.getElementById("statusFilter").value;
+ try{requestsCache=await api("/api/requests?"+new URLSearchParams({q,status}));renderRequests()}
+ catch(e){el.innerHTML='<div class="empty error-state"><b>Could not load requests.</b><p>'+esc(e.message)+'</p><button class="small" onclick="loadRequests()">Try again</button></div>'}
+}
+function renderRequests(){
+ const el=document.getElementById("requests");
+ if(!requestsCache.length){el.innerHTML='<div class="empty"><div class="empty-icon">⌕</div><b>No matching requests</b><p>New customer requests will appear here.</p></div>';return}
+ el.innerHTML=requestsCache.map(x=>'<article class="request"><div class="requesthead"><div class="request-main"><div class="request-title"><strong>#'+x.id+' '+esc(x.name)+'</strong><span class="status '+esc(x.status)+'">'+label(x.status)+'</span></div><p>'+esc(x.festival)+' <i>•</i> '+esc(x.service)+' <i>•</i> '+esc(x.city)+' <i>•</i> '+esc(x.event_date)+'</p></div><select aria-label="Change request status for #'+x.id+'" onchange="setStatus('+x.id+',this.value)">'+STATUS.map(s=>'<option value="'+s+'" '+(s===x.status?"selected":"")+'>'+label(s)+'</option>').join("")+'</select></div><div class="request-meta"><span><b>Budget</b> '+esc(x.budget)+'</span><span><b>Phone</b> '+esc(x.phone)+'</span><span><b>Quotes</b> '+esc(x.quote_count)+'</span></div><p class="details">'+esc(x.details||"No extra details")+'</p><div class="actions"><button class="small" onclick="openRequest('+x.id+')">View & manage quotes</button><button class="small ghost" onclick="openTrack('+x.id+')">Open customer tracker ↗</button></div><div id="detail-'+x.id+'" class="detail" hidden></div></article>').join("")
+}
+async function setStatus(id,status){
+ try{await api("/api/requests/"+id+"/status?status="+encodeURIComponent(status),{method:"PATCH"});toast("Request status updated.");await Promise.all([loadStats(),loadRequests()])}
+ catch(e){toast(e.message||"Could not update status.",true);await loadRequests()}
+}
+async function openRequest(id){
+ const el=document.getElementById("detail-"+id);if(!el.hidden){el.hidden=true;return}
+ el.hidden=false;el.innerHTML='<div class="loading-card"><span class="spinner dark"></span> Loading request…</div>';
+ try{const j=await api("/api/requests/"+id);renderDetail(el,j)}
+ catch(e){el.innerHTML='<div class="inline-error">'+esc(e.message)+' <button class="small ghost" onclick="openRequest('+id+')">Retry</button></div>'}
+}
+function renderDetail(el,j){
+ const req=j.request,quotes=j.quotes||[];
+ el.innerHTML='<div class="detail-head"><div><h3>Request details</h3><p>'+esc(req.name)+' · '+esc(req.phone)+' '+(req.email?'· '+esc(req.email):'')+'</p></div><button class="small ghost" onclick="navigator.clipboard?.writeText(location.origin+req.tracking_path).then(()=>toast(\'Tracking link copied.\'))">Copy tracker</button></div><div class="detail-grid"><div><b>Festival</b><span>'+esc(req.festival)+'</span></div><div><b>Service</b><span>'+esc(req.service)+'</span></div><div><b>Event</b><span>'+esc(req.event_date)+'</span></div><div><b>Budget</b><span>'+esc(req.budget)+'</span></div></div><p class="details">'+esc(req.details||"No extra details")+'</p><div class="quote-head"><h3>Quotes ('+quotes.length+')</h3><button class="small" onclick="prefillQuote('+req.id+')">+ Create quote</button></div>'+ (quotes.length?quotes.map(q=>renderQuote(q,req.id)).join(""):'<div class="empty compact"><b>No quotes yet.</b><p>Contact a relevant provider, verify the details, then create the first option.</p></div>')}
+function renderQuote(q,requestId){
+ const statusOptions=QUOTE_STATUS.map(s=>'<option value="'+s+'" '+(s===q.lead_status?"selected":"")+'>'+label(s)+'</option>').join("");
+ return '<div class="quoteRow"><div class="quote-main"><div class="quote-provider"><b>'+esc(q.provider)+'</b><span class="availability '+esc(q.availability)+'">'+label(q.availability)+'</span></div><p>'+esc(q.package||"Custom package")+'</p><p class="muted">'+esc(q.response_note||"No response notes")+'</p><div class="quote-contact">'+(q.phone?'<span>☎ '+esc(q.phone)+'</span>':"")+(q.source_url?'<a href="'+esc(q.source_url)+'" target="_blank" rel="noopener">Source ↗</a>':"")+'</div></div><div class="quote-side"><strong>'+(q.price!=null?"₹"+Number(q.price).toLocaleString("en-IN"):"Ask")+'</strong><span>Lead ₹'+esc(q.lead_fee)+'</span><div class="quote-controls"><select id="qs-'+q.id+'" aria-label="Quote status">'+statusOptions+'</select><label class="check"><input id="qc-'+q.id+'" type="checkbox" '+(q.customer_selected?"checked":"")+'> Customer selected</label><label class="check"><input id="qp-'+q.id+'" type="checkbox" '+(q.provider_paid?"checked":"")+'> Provider paid</label><button class="tiny" onclick="saveQuoteStatus('+q.id+','+requestId+')">Save</button></div></div></div>'
+}
+async function saveQuoteStatus(id,requestId){
+ try{await api("/api/quotes/"+id+"/status",{method:"PATCH",body:JSON.stringify({lead_status:document.getElementById("qs-"+id).value,customer_selected:document.getElementById("qc-"+id).checked,provider_paid:document.getElementById("qp-"+id).checked})});toast("Quote status saved.");await Promise.all([loadStats(),openRequest(requestId)])}
+ catch(e){toast(e.message||"Could not save quote status.",true)}
+}
+function openTrack(id){const x=requestsCache.find(r=>r.id===id);if(x?.tracking_path)window.open(x.tracking_path,"_blank","noopener");else toast("Tracking link unavailable.",true)}
+async function loadProviders(){
+ const el=document.getElementById("providers");el.innerHTML='<div class="loading-card"><span class="spinner dark"></span> Loading providers…</div>';
+ try{providerCache=await api("/api/providers?include_inactive=true");renderProviders()}
+ catch(e){el.innerHTML='<div class="empty error-state"><b>Could not load providers.</b><p>'+esc(e.message)+'</p><button class="small" onclick="loadProviders()">Try again</button></div>'}
+}
+function renderProviders(){
+ const filter=document.getElementById("providerSearch").value.toLowerCase().trim(),ps=providerCache.filter(p=>(p.name+" "+p.city+" "+p.service+" "+(p.notes||"")).toLowerCase().includes(filter));
+ const el=document.getElementById("providers");
+ if(!ps.length){el.innerHTML='<div class="empty"><div class="empty-icon">♧</div><b>No matching providers</b><p>Add a provider or change the filter.</p></div>';return}
+ el.innerHTML=ps.map(p=>'<article class="provider"><div class="provider-main"><div class="provider-title"><b>'+esc(p.name)+'</b><span class="badge '+(p.active?"on":"off")+'">'+(p.active?"Active":"Inactive")+'</span></div><p>'+esc(p.city)+' · '+esc(p.service)+'</p><p class="muted">'+esc(p.phone||"No phone")+' · Lead ₹'+esc(p.lead_fee)+'</p><p class="provider-note">'+esc(p.notes||"No verification notes")+'</p><div class="provider-links">'+(p.source_url?'<a href="'+esc(p.source_url)+'" target="_blank" rel="noopener">Source ↗</a>':"")+(p.whatsapp?'<a href="'+waLink(p.whatsapp)+'" target="_blank" rel="noopener">WhatsApp ↗</a>':"")+'</div></div><button class="small '+(p.active?"ghost":"")+"" onclick="toggleProvider("+p.id+","+(p.active?"false":"true")+")">"+(p.active?"Deactivate":"Activate")+"</button></article>').join("");
+ const sel=document.getElementById("providerSelect");sel.innerHTML='<option value="">Select active provider</option>'+providerCache.filter(p=>p.active).map(p=>'<option value="'+p.id+'">'+esc(p.name)+' — '+esc(p.city)+'</option>').join("")
+}
+function waLink(v){let x=String(v||"").replace(/\D/g,"");if(x.startsWith("0"))x="91"+x.slice(1);if(x.length===10)x="91"+x;return x?"https://wa.me/"+x:""}
+async function toggleProvider(id,active){
+ if(!confirm((active?"Activate":"Deactivate")+" this provider?"))return;
+ try{await api("/api/providers/"+id+"/active?active="+active,{method:"PATCH"});toast(active?"Provider activated.":"Provider deactivated.");await Promise.all([loadProviders(),loadStats()])}
+ catch(e){toast(e.message||"Could not update provider.",true)}
+}
+function prefillQuote(id){document.querySelector('[data-tab="quotesTab"]').click();document.querySelector('#quoteForm input[name="request_id"]').value=id;document.getElementById("quoteForm").scrollIntoView({behavior:"smooth",block:"start"});document.querySelector('#quoteForm input[name="request_id"]').focus()}
+async function submitForm(e,url,btn,msgEl,successText,onSuccess){
+ e.preventDefault();setButton(btn,true,"Saving…");msgEl.textContent="";
+ try{const data=Object.fromEntries(new FormData(e.target));const result=await api(url,{method:"POST",body:JSON.stringify(data)});msgEl.textContent=successText;toast(successText);e.target.reset();onSuccess?.(result)}
+ catch(err){msgEl.textContent=err.message||"Could not complete the action.";toast(err.message||"Action failed.",true)}
+ finally{setButton(btn,false)}
+}
+document.getElementById("loginForm").addEventListener("submit",openDash);
+document.getElementById("lockBtn").addEventListener("click",()=>{KEY="";location.reload()});
+document.getElementById("refreshRequests").addEventListener("click",loadRequests);
+document.getElementById("refreshProviders").addEventListener("click",loadProviders);
+document.getElementById("search").addEventListener("input",()=>{clearTimeout(searchTimer);searchTimer=setTimeout(loadRequests,250)});
+document.getElementById("statusFilter").addEventListener("change",loadRequests);
+document.getElementById("providerSearch").addEventListener("input",renderProviders);
+document.getElementById("provider").addEventListener("submit",e=>submitForm(e,"/api/providers",document.getElementById("providerBtn"),document.getElementById("providerMsg"),"Provider added.",async()=>{await Promise.all([loadProviders(),loadStats()])}));
+document.getElementById("quoteForm").addEventListener("submit",e=>{
+ const form=e.target;submitForm(e,"/api/quotes",document.getElementById("quoteBtn"),document.getElementById("quoteMsg"),"Quote created and request moved to quotes ready.",async()=>{form.reset();await Promise.all([loadStats(),loadRequests()])})
+});
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".tabbody").forEach(x=>x.hidden=true);b.classList.add("active");document.getElementById(b.dataset.tab).hidden=false;}));
+</script>
+</body></html>
