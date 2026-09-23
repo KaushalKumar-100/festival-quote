@@ -14,10 +14,6 @@ CREATE TABLE IF NOT EXISTS requests (
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_requests_status ON requests(status);
-CREATE INDEX IF NOT EXISTS idx_requests_city_service ON requests(city, service);
-CREATE INDEX IF NOT EXISTS idx_requests_tracking ON requests(id, tracking_token);
-
 CREATE TABLE IF NOT EXISTS providers (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
@@ -31,8 +27,6 @@ CREATE TABLE IF NOT EXISTS providers (
   active INTEGER NOT NULL DEFAULT 1,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-
-CREATE INDEX IF NOT EXISTS idx_providers_city_service ON providers(city, service);
 
 CREATE TABLE IF NOT EXISTS quotes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,6 +45,8 @@ CREATE TABLE IF NOT EXISTS quotes (
   FOREIGN KEY(provider_id) REFERENCES providers(id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_requests_status ON requests(status);
+CREATE INDEX IF NOT EXISTS idx_requests_city_service ON requests(city, service);
 CREATE INDEX IF NOT EXISTS idx_quotes_request ON quotes(request_id);
 CREATE INDEX IF NOT EXISTS idx_quotes_lead_status ON quotes(lead_status);
 
