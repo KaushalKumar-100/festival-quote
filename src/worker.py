@@ -259,7 +259,7 @@ async def list_providers(
 ):
     admin_guard(request, x_admin_key)
     database = db(request)
-    sql = "SELECT * FROM providers WHERE 1=1"
+    sql = """SELECT id,name,city,service,phone,whatsapp,source_url,notes,lead_fee,active,created_at,portal_token_created_at FROM providers WHERE 1=1"""
     params: list[str] = []
     if not include_inactive:
         sql += " AND active=1"
