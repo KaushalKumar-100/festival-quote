@@ -298,7 +298,7 @@ async def update_quote_status(
 async def track_request(request: Request, id: int, token: str):
     database = db(request)
     req = await database.prepare(
-        """SELECT id,city,festival,service,event_date,budget,status,created_at
+        """SELECT id,name,phone,email,city,festival,service,event_date,budget,details,status,created_at
            FROM requests WHERE id=? AND tracking_token=?"""
     ).bind(id, token).first()
     if not req:
