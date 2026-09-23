@@ -60,7 +60,8 @@ class ProductionContractTests(unittest.TestCase):
             self.assertTrue(
                 {
                     "name", "city", "service", "phone", "whatsapp",
-                    "source_url", "lead_fee", "active", "created_at",
+                    "source_url", "lead_fee", "active", "portal_token_hash",
+                    "portal_token_created_at", "created_at",
                 } <= provider_columns
             )
             self.assertTrue(
@@ -94,6 +95,7 @@ class ProductionContractTests(unittest.TestCase):
             "public/track.html": {"editModal", "editForm"},
             "public/my-requests.html": {"list"},
             "public/admin/index.html": {"loginForm", "dash"},
+            "public/provider.html": set(),
         }
         for relative, required_ids in expected.items():
             parser = HTMLContractParser()
@@ -103,13 +105,31 @@ class ProductionContractTests(unittest.TestCase):
                 f"{relative} missing IDs: {required_ids - parser.ids}",
             )
 
-        for relative in ("public/track.html", "public/my-requests.html", "public/admin/index.html"):
+        for relative in ("public/track.html", "public/my-requests.html", "public/admin/index.html", "public/provider.html"):
             parser = HTMLContractParser()
             parser.feed((ROOT / relative).read_text(encoding="utf-8"))
             self.assertTrue(
                 any("noindex" in value.lower() for value in parser.meta_robots),
                 f"{relative} must be noindex",
             )
+
+
+    def test_provider_portal_uses_bearer_token_without_exposing_token_storage(self):
+        worker = (ROOT / "src/worker.py").read_text(encoding="utf-8")
+        portal = (ROOT / "public/provider.html").read_text(encoding="utf-8")
+        admin = (ROOT / "public/admin/index.html").read_text(encoding="utf-8")
+        self.assertIn("hashlib.sha256", worker)
+        self.assertIn("X-Provider-Token", worker)
+        self.assertIn("/api/provider/portal", portal)
+        self.assertIn("/api/provider/quotes/", portal)
+        self.assertNotIn("localStorage", portal)
+        self.assertNotIn("portal_token_hash", admin)
+        self.assertIn("/api/providers/"+str(1)+"/portal-link", admin)
+
+    def test_provider_migration_is_explicit(self):
+        migration = (ROOT / "migrations/0002_provider_portal.sql").read_text(encoding="utf-8")
+        self.assertIn("ALTER TABLE providers ADD COLUMN portal_token_hash TEXT;", migration)
+        self.assertIn("CREATE UNIQUE INDEX IF NOT EXISTS idx_providers_portal_token_hash", migration)
 
     def test_worker_does_not_contain_hardcoded_local_admin_secret(self):
         worker = (ROOT / "src/worker.py").read_text(encoding="utf-8")
