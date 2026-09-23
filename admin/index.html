@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FestivalQuote Admin</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<header><div class="wrap"><div class="brand">Festival<span>Quote</span> <small>Admin</small></div></div></header>
+<main class="wrap">
+<section id="login" class="login"><h1>Operations dashboard</h1><p>Enter your API URL and admin key.</p><input id="api" placeholder="https://your-api.onrender.com"><input id="key" type="password" placeholder="Admin key"><button onclick="loadDashboard()">Open dashboard</button><p id="loginMsg"></p></section>
+<section id="dash" hidden><div id="stats" class="stats"></div><div class="layout">
+<section class="panel"><h2>Requests</h2><div id="requests"></div></section>
+<section class="panel"><h2>Add provider</h2><form id="providerForm"><input name="name" placeholder="Provider name" required><input name="city" placeholder="City" required><input name="service" placeholder="Service" required><input name="phone" placeholder="Phone" required><input name="whatsapp" placeholder="WhatsApp"><input name="source_url" placeholder="Public source URL"><input name="lead_fee" type="number" min="0" value="150"><textarea name="notes" placeholder="Notes"></textarea><button>Add provider</button></form><p id="providerMsg"></p></section>
+</div></section></main>
+<script>
+let API="",KEY="";
+const hdr=()=>({"X-Admin-Key":KEY,"Content-Type":"application/json"});
+async function loadDashboard(){
+API=document.getElementById("api").value.replace(/\/$/,""); KEY=document.getElementById("key").value;
+const r=await fetch(API+"/api/stats",{headers:hdr()});
+if(!r.ok){document.getElementById("loginMsg").textContent="Login failed.";return;}
+document.getElementById("login").hidden=true;document.getElementById("dash").hidden=false;refresh();
+}
+async function refresh(){
+const s=await fetch(API+"/api/stats",{headers:hdr()}), r=await fetch(API+"/api/requests",{headers:hdr()});
+const st=await s.json(), req=await r.json();
+document.getElementById("stats").innerHTML=Object.entries(st).map(([k,v])=>"<div><b>"+v+"</b><span>"+k.replace("_"," ")+"</span></div>").join("");
+document.getElementById("requests").innerHTML=req.length?req.map(x=>"<article><div class='row'><strong>#"+x.id+" "+esc(x.name)+"</strong><span>"+esc(x.status)+"</span></div><p>"+esc(x.service)+" · "+esc(x.city)+" · "+esc(x.event_date)+" · "+esc(x.budget)+"</p><p>"+esc(x.phone)+(x.email?" · "+esc(x.email):"")+"</p><p>"+esc(x.details||"")+"</p><button onclick='wa("+x.id+",""+encodeURIComponent(x.phone)+"")'>WhatsApp draft</button> <button onclick='markReady("+x.id+")'>Mark quotes ready</button></article>").join(""):"<p>No requests yet.</p>";
+}
+function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));}
+function wa(id,p){open("https://wa.me/"+p+"?text="+encodeURIComponent("Hi! This is FestivalQuote. We received request #"+id+" and are sourcing up to 3 local options for you."),"_blank")}
+async function markReady(id){await fetch(API+"/api/requests/"+id+"/status?status=quotes_ready",{method:"PATCH",headers:hdr()});refresh()}
+document.getElementById("providerForm").addEventListener("submit",async e=>{e.preventDefault();const r=await fetch(API+"/api/providers",{method:"POST",headers:hdr(),body:JSON.stringify(Object.fromEntries(new FormData(e.target)))});document.getElementById("providerMsg").textContent=r.ok?"Provider added.":"Could not add provider.";if(r.ok)e.target.reset()});
+</script>
+</body></html>
