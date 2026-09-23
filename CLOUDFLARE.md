@@ -1,31 +1,88 @@
 # Cloudflare production setup
 
-FestivalQuote is now structured as one Cloudflare Worker with FastAPI + Workers Static Assets + D1. Cloudflare officially supports FastAPI on Python Workers and D1 bindings from Python Workers. See the Cloudflare docs for the current setup.
+FestivalQuote runs as one Cloudflare Worker using FastAPI on Python Workers, Workers Static Assets and D1.
 
-## One-time Cloudflare setup
+Cloudflare's current Python Workers workflow uses `uv run pywrangler dev` locally and `uv run pywrangler deploy` for deployment:
+https://developers.cloudflare.com/workers/languages/python/
 
-1. Create a Cloudflare account and open Workers & Pages.
-2. Create a D1 database named `festivalquote-prod`.
-3. Copy the database ID.
-4. Replace `REPLACE_WITH_YOUR_D1_DATABASE_ID` in `wrangler.jsonc`.
-5. Run the schema against the remote database:
-   `npx wrangler d1 execute festivalquote-prod --remote --file=schema.sql`
-6. Deploy:
-   `uv run pywrangler deploy`
-7. Add the Worker secret:
-   `npx wrangler secret put ADMIN_KEY`
-8. The Worker URL will be a `workers.dev` URL unless a custom domain is configured.
+## One-time setup
+
+1. Create the D1 database named `festivalquote-prod`.
+2. Put its database ID in `wrangler.jsonc`.
+3. Initialize the production schema. For an existing database, use reviewed incremental migrations rather than assuming `schema.sql` will modify old tables.
+4. Set the admin secret:
+
+```powershell
+npx wrangler secret put ADMIN_KEY
+```
+
+5. Deploy:
+
+```powershell
+uv run pywrangler deploy
+```
+
+## Local development
+
+Install/update `uv`, then run:
+
+```powershell
+uv --version
+uv run pywrangler dev
+```
+
+For local-only secrets create `.dev.vars`:
+
+```env
+ADMIN_KEY="local-development-secret"
+```
+
+`.dev.vars` is ignored by Git and must never be committed.
+
+Local D1 is separate from remote D1. If the local database is empty:
+
+```powershell
+npx wrangler d1 execute festivalquote-prod --local --file=./schema.sql
+```
+
+## Production bindings
+
+The Worker expects:
+
+- `DB` — D1 binding
+- `ASSETS` — Workers Static Assets binding
+- `APP_ENV` — production environment variable
+- `ADMIN_KEY` — Worker secret
+
+The current database ID is intentionally stored in `wrangler.jsonc` because it is configuration, not an authentication secret. Do not put API tokens or admin credentials there.
 
 ## GitHub automatic deployments
 
-Cloudflare Workers supports GitHub integration. Connect this repository to Workers Builds and deploy from `main`. Keep the D1 database binding configured in the Worker.
+Cloudflare Workers Builds can deploy the `main` branch automatically. Keep the D1 binding configured in the Worker.
 
-## Important
+Review changes before merging production-impacting code. The project includes GitHub Actions checks that compile both the legacy backend and the active Python Worker.
 
-Do not commit the D1 database ID if your Cloudflare policy requires it to stay private; Cloudflare Wrangler configurations commonly contain it, but secrets such as ADMIN_KEY must never be committed. Do not store customer payment credentials in D1.
+## Architecture
 
-## Production architecture
+```text
+Customer browser
+      ↓
+Cloudflare Worker
+   ┌──┴───────────────┐
+   ↓                  ↓
+FastAPI API      Static Assets
+   ↓
+D1
+```
 
-Customer browser -> Cloudflare Worker -> FastAPI routes / Static Assets -> D1.
+The customer request flow, private token tracker, provider management and quote management are all handled by the same Worker.
 
-Provider contact and quote verification remain manual initially. This is intentional: prove demand before paying for external APIs or automated messaging.
+## Security
+
+- Admin authentication uses the `ADMIN_KEY` Worker secret.
+- Customer tracking uses a random private token.
+- API responses are marked `no-store`.
+- Baseline security headers are added by the Worker.
+- `/admin` and `/track.html` are excluded from search indexing.
+- Never commit `.env`, `.dev.vars`, API tokens or other credentials.
+- Add Cloudflare rate limiting/WAF rules for public request creation and administrative surfaces once the production domain is configured.

@@ -3,22 +3,23 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="FestivalQuote helps Indian families and businesses compare local festival service options without calling dozens of providers.">
-<meta name="theme-color" content="#c96b32">
+<meta name="theme-color" content="#c96b32"><meta name="robots" content="index,follow"><link rel="canonical" href="/"><meta property="og:type" content="website"><meta property="og:title" content="FestivalQuote — Festival services, sorted for you"><meta property="og:description" content="Tell us your festival service need and compare relevant local options without calling dozens of providers.">
 <title>FestivalQuote — Festival services, sorted for you</title>
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header>
   <div class="nav">
     <a class="brand" href="/">Festival<span>Quote</span></a>
-    <nav class="navlinks">
-      <a href="#festivals">Festivals</a><a href="#how">How it works</a><a href="#faq">FAQ</a>
+    <nav class="navlinks" aria-label="Primary navigation">
+      <a href="#festivals">Festivals</a><a href="#how">How it works</a><a href="#faq">FAQ</a><a class="nav-mobile-link" href="/my-requests.html">My requests</a>
       <a class="navcta" href="#request">Get quotes →</a>
     </nav>
   </div>
 </header>
 
-<main>
+<main id="main-content">
 <section class="hero">
   <div class="hero-copy">
     <div class="live-pill"><span></span> Festival season is here • Guwahati launch</div>
@@ -55,8 +56,8 @@
   <div class="section-head"><div><p class="eyebrow">FREE DURING LAUNCH</p><h2>Tell us what you need</h2><p class="form-intro">Give us the basics. Our job is to turn this into useful local options.</p></div><span class="quote-badge">Usually up to 3 options</span></div>
   <div class="progress"><span class="progress-dot on"></span><span></span><span></span><small>1 minute request</small></div>
   <form id="requestForm">
-    <div class="grid"><label>Your name<input name="name" required minlength="2" placeholder="e.g. Rahul Kumar"></label><label>Phone / WhatsApp<input name="phone" required minlength="7" inputmode="tel" placeholder="9876543210"></label></div>
-    <div class="grid"><label>City<input name="city" required value="Guwahati" placeholder="Guwahati"></label><label>Festival<select name="festival" id="festivalSelect"><option>Diwali</option><option>Durga Puja</option><option>Dussehra</option><option>Chhath Puja</option><option>Ganesh Chaturthi</option><option>Navratri</option><option>Other Festival</option></select></label></div>
+    <div class="grid"><label>Your name<input name="name" autocomplete="name" required minlength="2" placeholder="e.g. Rahul Kumar"></label><label>Phone / WhatsApp<input name="phone" autocomplete="tel" required minlength="7" inputmode="tel" placeholder="9876543210"></label></div>
+    <div class="grid"><label>City<input name="city" autocomplete="address-level2" required value="Guwahati" placeholder="Guwahati"></label><label>Festival<select name="festival" id="festivalSelect"><option>Diwali</option><option>Durga Puja</option><option>Dussehra</option><option>Chhath Puja</option><option>Ganesh Chaturthi</option><option>Navratri</option><option>Other Festival</option></select></label></div>
     <div class="service-picker"><label>What do you need?</label><div class="service-chips" id="serviceChips">
       <button type="button" class="service-chip active" data-service="Decoration / Lighting">🪔 Decoration</button>
       <button type="button" class="service-chip" data-service="Photographer">📸 Photography</button>
@@ -68,7 +69,7 @@
       <button type="button" class="service-chip" data-service="Chhath Services">🌅 Chhath Services</button>
     </div><input type="hidden" name="service" id="serviceInput" value="Decoration / Lighting"></div>
     <div class="grid"><label>Event date<input type="date" name="event_date" required></label><label>Budget<select name="budget"><option>Under ₹5,000</option><option>₹5,000–₹10,000</option><option>₹10,000–₹25,000</option><option>₹25,000–₹50,000</option><option>₹50,000+</option><option>Not sure</option></select></label></div>
-    <div class="grid"><label>Email <span class="optional">(optional)</span><input name="email" type="email" placeholder="you@example.com"></label><label>Preferred style <span class="optional">(optional)</span><select name="style"><option value="">No preference</option><option>Traditional</option><option>Modern</option><option>Minimal</option><option>Premium</option></select></label></div>
+    <div class="grid"><label>Email <span class="optional">(optional)</span><input name="email" autocomplete="email" type="email" placeholder="you@example.com"></label><label>Preferred style <span class="optional">(optional)</span><select name="style"><option value="">No preference</option><option>Traditional</option><option>Modern</option><option>Minimal</option><option>Premium</option></select></label></div>
     <label>Requirement details<textarea name="details" rows="5" maxlength="2000" placeholder="Example: 3BHK home, balcony + entrance decoration, traditional look, installation on the morning of the event."></textarea><small class="counter"><span id="count">0</span>/2000</small></label>
     <button id="submitBtn" class="submit-btn">Find my options <span>→</span></button>
     <div id="msg" class="msg"></div>
@@ -129,9 +130,12 @@ document.querySelectorAll("[data-jump-service]").forEach(x=>x.addEventListener("
 document.querySelectorAll("[data-festival]").forEach(x=>x.addEventListener("click",()=>{festivalSelect.value=x.dataset.festival;document.querySelectorAll(".festival-tile").forEach(t=>t.classList.toggle("active",t===x));document.getElementById("request").scrollIntoView({behavior:"smooth",block:"start"});}));
 details.addEventListener("input",()=>count.textContent=details.value.length);
 form.addEventListener("submit",async e=>{e.preventDefault();btn.disabled=true;btn.innerHTML="Sending your request <span class='spinner'></span>";msg.textContent="";
-const data=Object.fromEntries(new FormData(form)); const style=data.style;if(style)data.details=(data.details?data.details+"\n":"")+"Preferred style: "+style;delete data.style;
+const data=Object.fromEntries(new FormData(form)); const style=data.style;if(style)data.details=((data.details?data.details+"\n":"")+"Preferred style: "+style).slice(0,2000);delete data.style;
 try{const r=await fetch("/api/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});const text=await r.text();let j;try{j=JSON.parse(text)}catch{throw Error("Something went wrong while sending your request. Please try again.");}if(!r.ok)throw Error(j.detail||"Could not submit");
-msg.innerHTML='<div class="success-box"><strong>Request #'+j.id+' received 🎉</strong><span>Save your private tracking link. We will update it as options are sourced.</span><a href="'+j.tracking_path+'">Track my request →</a></div>';form.reset();selectService("Decoration / Lighting");count.textContent="0";window.scrollTo({top:document.getElementById("request").offsetTop-20,behavior:"smooth"});showToast("Your request was received.");}catch(err){msg.textContent=err.message||"Could not submit. Please try again."}finally{btn.disabled=false;btn.innerHTML='Find my options <span>→</span>'}});
+const saved=JSON.parse(localStorage.getItem("festivalquote_requests")||"[]");
+saved.unshift({id:j.id,token:j.tracking_token,tracking_path:j.tracking_path,createdAt:new Date().toISOString()});
+localStorage.setItem("festivalquote_requests",JSON.stringify(saved.slice(0,20)));
+msg.innerHTML='<div class="success-box"><strong>Request #'+j.id+' received 🎉</strong><span>Your request is saved on this browser. You can return anytime from <b>My requests</b>.</span><a href="/track.html?id='+encodeURIComponent(j.id)+'&token='+encodeURIComponent(j.tracking_token)+'">View my request →</a><a href="/my-requests.html">See all my requests →</a></div>';form.reset();selectService("Decoration / Lighting");count.textContent="0";window.scrollTo({top:document.getElementById("request").offsetTop-20,behavior:"smooth"});showToast("Your request was received.");}catch(err){msg.textContent=err.message||"Could not submit. Please try again."}finally{btn.disabled=false;btn.innerHTML='Find my options <span>→</span>'}});
 function showToast(t){const toast=document.getElementById("toast");toast.textContent=t;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3200);}
 const target=new Date("2026-11-08T00:00:00+05:30");function tick(){let ms=Math.max(0,target-new Date()),d=Math.floor(ms/86400000),h=Math.floor(ms/3600000)%24,m=Math.floor(ms/60000)%60;document.getElementById("days").textContent=d;document.getElementById("hours").textContent=h;document.getElementById("mins").textContent=m;document.getElementById("heroDate").textContent="8 Nov 2026";}tick();setInterval(tick,30000);
 </script>

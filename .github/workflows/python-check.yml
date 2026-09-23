@@ -11,4 +11,14 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r backend/requirements.txt
-      - run: python -m compileall backend/app
+      - run: python -m compileall backend/app src
+      - name: Run production contract tests
+        run: python -m unittest discover -s tests -v
+      - name: Validate required project files
+        run: |
+          test -f pyproject.toml
+          test -f wrangler.jsonc
+          test -f src/worker.py
+          test -f public/index.html
+          test -f public/track.html
+          test -f public/admin/index.html
