@@ -1,3 +1,4 @@
+import hashlib
 import secrets
 from datetime import date
 
@@ -23,6 +24,24 @@ def admin_guard(request: Request, x_admin_key: str | None):
 async def rows(database, sql, *params):
     result = await database.prepare(sql).bind(*params).run()
     return result.results
+
+
+def provider_token_hash(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+async def provider_guard(request: Request, x_provider_token: str | None):
+    if not x_provider_token or len(x_provider_token) > 256:
+        raise HTTPException(status_code=401, detail="Provider access token required")
+    provider = await db(request).prepare(
+        """SELECT id,name,city,service,phone,whatsapp,active
+           FROM providers WHERE portal_token_hash=?"""
+    ).bind(provider_token_hash(x_provider_token)).first()
+    if not provider:
+        raise HTTPException(status_code=401, detail="Invalid provider access token")
+    if not provider["active"]:
+        raise HTTPException(status_code=403, detail="Provider access is inactive")
+    return provider
 
 
 @app.middleware("http")
@@ -202,6 +221,34 @@ async def create_provider(
     return {"id": result.meta.last_row_id}
 
 
+@app.post("/api/providers/{provider_id}/portal-link")
+async def create_provider_portal_link(
+    provider_id: int,
+    request: Request,
+    x_admin_key: str | None = Header(default=None),
+):
+    admin_guard(request, x_admin_key)
+    database = db(request)
+    provider = await database.prepare(
+        "SELECT id,active FROM providers WHERE id=?"
+    ).bind(provider_id).first()
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider not found")
+    if not provider["active"]:
+        raise HTTPException(status_code=409, detail="Activate the provider before creating an access link")
+
+    token = secrets.token_urlsafe(32)
+    token_hash = provider_token_hash(token)
+    await database.prepare(
+        "UPDATE providers SET portal_token_hash=?,portal_token_created_at=CURRENT_TIMESTAMP WHERE id=?"
+    ).bind(token_hash, provider_id).run()
+
+    return {
+        "provider_id": provider_id,
+        "portal_path": f"/provider.html#token={token}",
+        "rotated": True,
+    }
+
 @app.get("/api/providers")
 async def list_providers(
     request: Request,
@@ -241,6 +288,64 @@ async def toggle_provider(
     return {"id": provider_id, "active": active}
 
 
+class ProviderQuoteResponseIn(BaseModel):
+    price: int | None = Field(default=None, ge=0)
+    package: str = Field(default="", max_length=1000)
+    availability: str = Field(default="available", max_length=40)
+    response_note: str = Field(default="", max_length=2000)
+
+
+@app.get("/api/provider/portal")
+async def provider_portal(
+    request: Request,
+    x_provider_token: str | None = Header(default=None),
+):
+    provider = await provider_guard(request, x_provider_token)
+    quotes = await rows(
+        db(request),
+        """SELECT q.id,q.price,q.package,q.availability,q.response_note,q.lead_status,
+                  q.customer_selected,q.provider_paid,q.created_at,
+                  r.id AS request_id,r.festival,r.service,r.event_date,r.budget,r.details,r.city
+           FROM quotes q JOIN requests r ON r.id=q.request_id
+           WHERE q.provider_id=?
+           ORDER BY q.created_at DESC LIMIT 100"""
+        , provider["id"],
+    )
+    return {
+        "provider": {"id": provider["id"], "name": provider["name"], "city": provider["city"], "service": provider["service"]},
+        "quotes": quotes,
+    }
+
+
+@app.patch("/api/provider/quotes/{quote_id}")
+async def provider_update_quote(
+    quote_id: int,
+    payload: ProviderQuoteResponseIn,
+    request: Request,
+    x_provider_token: str | None = Header(default=None),
+):
+    provider = await provider_guard(request, x_provider_token)
+    if payload.availability not in {"available", "limited", "unavailable", "unknown"}:
+        raise HTTPException(status_code=400, detail="Invalid availability")
+    database = db(request)
+    quote = await database.prepare(
+        """SELECT id,customer_selected,provider_paid
+           FROM quotes WHERE id=? AND provider_id=?"""
+    ).bind(quote_id, provider["id"]).first()
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    if quote["customer_selected"] or quote["provider_paid"]:
+        raise HTTPException(status_code=409, detail="This quote is locked after customer selection or payment")
+    await database.prepare(
+        """UPDATE quotes
+           SET price=?,package=?,availability=?,response_note=?,lead_status='provider_responded'
+           WHERE id=? AND provider_id=?"""
+    ).bind(payload.price,payload.package,payload.availability,payload.response_note,quote_id,provider["id"]).run()
+    await database.prepare(
+        "UPDATE requests SET status='quotes_ready' WHERE id=(SELECT request_id FROM quotes WHERE id=?)"
+    ).bind(quote_id).run()
+    return {"id": quote_id, "updated": True, "lead_status": "provider_responded"}
+
 @app.post("/api/quotes")
 async def create_quote(
     payload: QuoteIn,
@@ -276,7 +381,7 @@ async def update_quote_status(
     x_admin_key: str | None = Header(default=None),
 ):
     admin_guard(request, x_admin_key)
-    allowed = {"pending", "contacted", "accepted", "rejected", "paid", "waived"}
+    allowed = {"pending", "provider_responded", "contacted", "accepted", "rejected", "paid", "waived"}
     if payload.lead_status not in allowed:
         raise HTTPException(status_code=400, detail="Invalid lead status")
     database = db(request)
