@@ -1,35 +1,44 @@
 # FestivalQuote
 
-Remote-first festival quote matching service MVP for India.
+Remote-first festival quote matching service for India's festival season.
 
-## Goal
-Customers submit a festival service request; the operator sources up to 3 relevant local providers and returns comparable options. The MVP is designed to be operated fully remotely and validated before paid automation.
+## Production architecture
 
-## Current business model
-- Customer: free during validation.
-- Provider: pay-per-qualified-lead or pay-per-introduced-customer.
-- Initial operator workflow: Google Maps/Instagram/web research + WhatsApp/email/phone.
-- No inventory, no physical meetings, no local office required.
+- Cloudflare Workers + Python FastAPI
+- Cloudflare Workers Static Assets
+- Cloudflare D1
+- GitHub as source control
+- Real Guwahati provider seed for initial validation
 
-## MVP
-The first release provides a responsive request form, service/category capture, admin lead queue, provider records, quote comparison, and notification-ready status fields. SQLite is used for zero-cost local development; PostgreSQL is supported for production.
+Cloudflare officially supports FastAPI on Python Workers and D1 bindings from Python Workers. See CLOUDFLARE.md.
 
-## Run locally
-```bash
-python -m venv .venv
-# Windows
-.venv\\Scripts\\activate
-# Linux/macOS
-source .venv/bin/activate
-pip install -r backend/requirements.txt
-uvicorn backend.app.main:app --reload
-```
+## Business model
 
-Frontend can be opened from `frontend/index.html` during MVP validation. The API is under `/api`.
+Customer submits a festival service requirement. FestivalQuote remotely sources relevant providers, verifies availability/price, and returns up to three comparable options.
 
-## Deployment
-- Backend: Render
-- Frontend: Vercel/static hosting
-- Database: start with SQLite; switch to Render PostgreSQL when paid usage justifies it.
+Initial monetization test: qualified provider leads, starting around ₹100–₹300 per qualified lead. This is a test range, not a guaranteed market price.
 
-See `docs/OPERATIONS.md` and `.env.example`.
+Customers pay providers directly in the MVP. FestivalQuote does not hold customer funds.
+
+## Run/deploy
+
+Cloudflare setup is documented in CLOUDFLARE.md.
+
+The public app lives under public/. API routes live under src/worker.py.
+
+## Current validation scope
+
+Start with Guwahati and a small number of services:
+- Diwali decoration
+- Photography
+- Puja materials/services
+- Catering
+- Festival/corporate gifting
+
+The provider seed is in schema.sql and data/guwahati_providers.md.
+
+Provider listings are leads, not confirmed partners. Festival availability, pricing and inclusions must be verified before a provider is presented as an actual quote.
+
+## Budget rule
+
+Do not spend the ₹1,000 launch budget on paid infrastructure or ads until the product has genuine customer requests and responsive providers.
