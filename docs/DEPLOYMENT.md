@@ -8,7 +8,7 @@ FestivalQuote currently runs as a single Cloudflare Worker:
 
 Static customer/admin/tracking pages are served from `public/` through Workers Static Assets. API routes live in `src/worker.py`.
 
-Cloudflare documents FastAPI on Python Workers and the `uv run pywrangler dev/deploy` workflow. urlCloudflare FastAPI Workers docshttps://developers.cloudflare.com/workers/languages/python/packages/fastapi/
+Cloudflare documents FastAPI on Python Workers and the `uv run pywrangler dev/deploy` workflow: https://developers.cloudflare.com/workers/languages/python/packages/fastapi/
 
 ## Local development
 
