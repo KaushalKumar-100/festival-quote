@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS providers (
   notes TEXT DEFAULT '',
   lead_fee INTEGER DEFAULT 150,
   active INTEGER NOT NULL DEFAULT 1,
+  portal_token_hash TEXT,
+  portal_token_created_at TEXT,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -49,6 +51,7 @@ CREATE INDEX IF NOT EXISTS idx_requests_status ON requests(status);
 CREATE INDEX IF NOT EXISTS idx_requests_city_service ON requests(city, service);
 CREATE INDEX IF NOT EXISTS idx_quotes_request ON quotes(request_id);
 CREATE INDEX IF NOT EXISTS idx_quotes_lead_status ON quotes(lead_status);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_providers_portal_token_hash ON providers(portal_token_hash) WHERE portal_token_hash IS NOT NULL;
 
 INSERT OR IGNORE INTO providers (id,name,city,service,phone,source_url,notes,lead_fee) VALUES
 (1,'Magic Moments Party Planners - Guwahati','Guwahati','Decoration / Event Planning','+91 76380 62984','https://www.google.com/maps/search/?api=1&query=Magic+Moments+Party+Planners+Guwahati','Real local-business listing; verify festival availability and pricing.',150),
