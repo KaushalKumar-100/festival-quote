@@ -9,3 +9,6 @@
 
 /track.html
   X-Robots-Tag: noindex, nofollow, noarchive
+
+/my-requests.html
+  X-Robots-Tag: noindex, nofollow, noarchive
