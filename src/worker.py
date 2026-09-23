@@ -94,7 +94,7 @@ async def update_request_status(
     request: Request,
     x_admin_key: str | None = Header(default=None),
 ):
-    admin_guard(x_admin_key)
+    admin_guard(request, x_admin_key)
     allowed = {"new", "sourcing", "quotes_ready", "customer_contacted", "booked", "closed"}
     if status not in allowed:
         raise HTTPException(status_code=400, detail="Invalid status")
