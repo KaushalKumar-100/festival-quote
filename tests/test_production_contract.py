@@ -86,6 +86,7 @@ class ProductionContractTests(unittest.TestCase):
                     "idx_requests_city_service",
                     "idx_quotes_request",
                     "idx_quotes_lead_status",
+                    "idx_providers_portal_token_hash",
                 } <= indexes
             )
 
@@ -124,7 +125,7 @@ class ProductionContractTests(unittest.TestCase):
         self.assertIn("/api/provider/quotes/", portal)
         self.assertNotIn("localStorage", portal)
         self.assertNotIn("portal_token_hash", admin)
-        self.assertIn("/api/providers/"+str(1)+"/portal-link", admin)
+        self.assertIn('"/api/providers/"+id+"/portal-link"', admin)
 
     def test_provider_migration_is_explicit(self):
         migration = (ROOT / "migrations/0002_provider_portal.sql").read_text(encoding="utf-8")
