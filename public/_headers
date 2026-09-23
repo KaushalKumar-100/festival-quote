@@ -12,3 +12,6 @@
 
 /my-requests.html
   X-Robots-Tag: noindex, nofollow, noarchive
+
+/provider.html
+  X-Robots-Tag: noindex, nofollow, noarchive
