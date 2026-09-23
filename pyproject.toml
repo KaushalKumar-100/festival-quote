@@ -1,0 +1,14 @@
+[project]
+name = "festivalquote"
+version = "0.2.0"
+description = "Remote-first festival quote matching service"
+requires-python = ">=3.13"
+dependencies = [
+  "fastapi",
+]
+
+[dependency-groups]
+dev = [
+  "workers-py",
+  "workers-runtime-sdk",
+]
