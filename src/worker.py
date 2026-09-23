@@ -16,10 +16,6 @@ def db(request: Request):
 
 def admin_guard(request: Request, x_admin_key: str | None):
     expected = getattr(request.scope["env"], "ADMIN_KEY", "")
-    # Local-only fallback so the dashboard is usable even when .dev.vars
-    # was not loaded. Production still requires the Cloudflare secret.
-    if not expected and request.url.hostname in {"127.0.0.1", "localhost"}:
-        expected = "festivalquote-local-admin-2026"
     if not expected or x_admin_key != expected:
         raise HTTPException(status_code=401, detail="Invalid admin key")
 
