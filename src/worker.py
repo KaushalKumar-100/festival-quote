@@ -537,7 +537,7 @@ async def razorpay_webhook(request: Request):
         return {"received": True}
     await database.prepare("""UPDATE lead_payments SET status="paid",gateway_payment_id=COALESCE(?,gateway_payment_id),
         paid_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=?""" ).bind(payment_id,payment["id"]).run()
-    await database.prepare("UPDATE quotes SET provider_paid=1,lead_status="paid" WHERE id=?").bind(payment["quote_id"]).run()
+    await database.prepare('UPDATE quotes SET provider_paid=1,lead_status=? WHERE id=?').bind('paid',payment['quote_id']).run()
     return {"received": True}
 
 @app.patch("/api/quotes/{quote_id}/status")
