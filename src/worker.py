@@ -193,8 +193,10 @@ async def request_detail(
     quotes = await rows(
         database,
         """SELECT q.*,p.name AS provider,p.city AS provider_city,p.service AS provider_service,
-                  p.phone,p.whatsapp,p.source_url,p.lead_fee AS default_lead_fee
+                  p.phone,p.whatsapp,p.source_url,p.lead_fee AS default_lead_fee,
+                  lp.id AS payment_id,lp.status AS payment_status,lp.payment_url
            FROM quotes q JOIN providers p ON p.id=q.provider_id
+           LEFT JOIN lead_payments lp ON lp.quote_id=q.id
            WHERE q.request_id=? ORDER BY q.created_at DESC""",
         request_id,
     )
