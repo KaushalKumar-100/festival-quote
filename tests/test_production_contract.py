@@ -1,6 +1,7 @@
 import pathlib
 import re
 import shutil
+import sys
 import sqlite3
 import subprocess
 import tempfile
@@ -122,6 +123,63 @@ class ProductionContractTests(unittest.TestCase):
                 any("noindex" in value.lower() for value in parser.meta_robots),
                 f"{relative} must be noindex",
             )
+
+    def test_public_javascript_parses(self):
+        node = shutil.which("node")
+        self.assertIsNotNone(node, "Node.js is required to validate public JavaScript")
+        for relative in (
+            "public/index.html",
+            "public/festivals.html",
+            "public/quotes.html",
+            "public/guide.html",
+            "public/create.html",
+        ):
+            html = (ROOT / relative).read_text(encoding="utf-8")
+            scripts = re.findall(
+                r"<script[^>]*>(.*?)</script>",
+                html,
+                flags=re.IGNORECASE | re.DOTALL,
+            )
+            for index, script in enumerate(scripts):
+                with tempfile.NamedTemporaryFile(
+                    "w", suffix=".js", encoding="utf-8", delete=False
+                ) as handle:
+                    handle.write(script)
+                    path = handle.name
+                try:
+                    result = subprocess.run(
+                        [node, "--check", path],
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
+                    self.assertEqual(
+                        result.returncode,
+                        0,
+                        f"{relative} script #{index + 1} has invalid JavaScript:\n{result.stderr}",
+                    )
+                finally:
+                    pathlib.Path(path).unlink(missing_ok=True)
+
+    def test_worker_python_syntax_parses(self):
+        worker = ROOT / "src" / "worker.py"
+        result = subprocess.run(
+            [sys.executable, "-m", "py_compile", str(worker)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"src/worker.py has invalid Python syntax:\n{result.stderr}",
+        )
+
+    def test_admin_layout_has_no_duplicate_section_close(self):
+        html = (ROOT / "public" / "admin" / "index.html").read_text(encoding="utf-8")
+        self.assertNotIn("</section>\n</section>\n</main>", html)
+        self.assertIn('class="searchbox"', html)
+        self.assertIn('id="search"', html)
 
     def test_private_page_javascript_parses(self):
         node = shutil.which("node")
