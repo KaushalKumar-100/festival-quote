@@ -1,13 +1,18 @@
+import base64
 import hashlib
+import hmac
+import json
 import secrets
 from datetime import date
+
+from workers import fetch
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
 from workers import asgi
 
-app = FastAPI(title="FestivalQuote API", version="1.1.0")
+app = FastAPI(title="FestivalQuote API", version="1.2.0")
 Default = asgi.entrypoint(app)
 
 
@@ -103,6 +108,17 @@ class QuoteStatusIn(BaseModel):
     lead_status: str
     customer_selected: bool = False
     provider_paid: bool = False
+
+
+class PaymentCreateIn(BaseModel):
+    amount: int | None = Field(default=None, ge=1, le=1000000)
+    payment_url: str | None = Field(default=None, max_length=1000)
+
+
+class PaymentStatusIn(BaseModel):
+    status: str
+    reference: str = Field(default="", max_length=160)
+    failure_reason: str = Field(default="", max_length=500)
 
 
 @app.get("/api/health")
