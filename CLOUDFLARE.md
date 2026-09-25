@@ -86,3 +86,34 @@ The customer request flow, private token tracker, provider management and quote 
 - `/admin` and `/track.html` are excluded from search indexing.
 - Never commit `.env`, `.dev.vars`, API tokens or other credentials.
 - Add Cloudflare rate limiting/WAF rules for public request creation and administrative surfaces once the production domain is configured.
+
+
+## Lead payment setup
+
+FestivalQuote uses a provider-paid lead-fee workflow. A lead fee becomes payable only after the customer selects a quote. The payment ledger is stored in D1 in `lead_payments`.
+
+For live Razorpay Payment Links, configure these Worker secrets:
+
+```bash
+npx wrangler secret put RAZORPAY_KEY_ID
+npx wrangler secret put RAZORPAY_KEY_SECRET
+npx wrangler secret put RAZORPAY_WEBHOOK_SECRET
+```
+
+Configure the Razorpay webhook URL as:
+
+```
+https://<your-production-host>/api/webhooks/razorpay
+```
+
+Subscribe to the `payment_link.paid` event. The webhook signature is verified before a payment is marked paid. Do not put the Razorpay secret in frontend code.
+
+Apply the migration before using payment endpoints:
+
+```bash
+npx wrangler d1 execute festivalquote-prod --remote --file=./migrations/0003_payments.sql
+```
+
+Local development can use the manual payment flow without Razorpay credentials. The admin can attach a verified external payment URL and reconcile the payment with a gateway/reference ID.
+
+Razorpay Payment Links support sharing by SMS, email and social channels, and their API uses the smallest currency unit (paise for INR). citeturn1search0turn3search10
