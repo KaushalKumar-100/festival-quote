@@ -178,6 +178,23 @@ class ProductionContractTests(unittest.TestCase):
         self.assertNotIn("portal_token_hash", admin)
         self.assertIn('"/api/providers/"+id+"/portal-link"', admin)
 
+    def test_payment_workflow_is_present(self):
+        schema = (ROOT / "schema.sql").read_text(encoding="utf-8")
+        migration = (ROOT / "migrations" / "0003_payments.sql").read_text(encoding="utf-8")
+        worker = (ROOT / "src" / "worker.py").read_text(encoding="utf-8")
+        admin = (ROOT / "public" / "admin" / "index.html").read_text(encoding="utf-8")
+        self.assertIn("CREATE TABLE IF NOT EXISTS lead_payments", schema)
+        self.assertIn("CREATE TABLE IF NOT EXISTS lead_payments", migration)
+        self.assertIn('idx_lead_payments_status', migration)
+        self.assertIn('/api/quotes/{quote_id}/payment', worker)
+        self.assertIn('/api/payments/{payment_id}/status', worker)
+        self.assertIn('/api/webhooks/razorpay', worker)
+        self.assertIn('payment_link.paid', worker)
+        self.assertIn('X-Razorpay-Signature', worker)
+        self.assertIn('Payments', admin)
+        self.assertIn('Collect ₹', admin)
+        self.assertIn('/api/payments', admin)
+
     def test_provider_migration_is_explicit(self):
         migration = (
             ROOT / "migrations/0002_provider_portal.sql"
