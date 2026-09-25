@@ -70,3 +70,32 @@ INSERT OR IGNORE INTO providers (id,name,city,service,phone,source_url,notes,lea
 (14,'POOJA CENTRE - PUJA SAMAGRI WHOLESALE','Guwahati','Puja Materials','+91 95310 00999','https://www.google.com/maps/search/?api=1&query=POOJA+CENTRE+PUJA+SAMAGRI+WHOLESALE+Guwahati','Real local-business listing; verify stock and delivery.',100),
 (15,'Prodopia','Guwahati','Corporate Gifting','+91 81330 29442','https://www.google.com/maps/search/?api=1&query=Prodopia+Guwahati','Real local-business listing; verify festive catalog, MOQ and delivery.',150),
 (16,'PriNiks','Guwahati','Corporate Gifting','+91 98540 20531','https://www.google.com/maps/search/?api=1&query=PriNiks+Guwahati','Real local-business listing; verify festive catalog, MOQ and delivery.',150);
+
+CREATE TABLE IF NOT EXISTS lead_payments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  quote_id INTEGER NOT NULL UNIQUE,
+  provider_id INTEGER NOT NULL,
+  amount INTEGER NOT NULL CHECK (amount >= 0),
+  currency TEXT NOT NULL DEFAULT 'INR',
+  status TEXT NOT NULL DEFAULT 'pending',
+  gateway TEXT NOT NULL DEFAULT 'manual',
+  gateway_payment_link_id TEXT,
+  gateway_payment_id TEXT,
+  payment_url TEXT,
+  reference_id TEXT NOT NULL UNIQUE,
+  failure_reason TEXT DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  paid_at TEXT,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY(quote_id) REFERENCES quotes(id),
+  FOREIGN KEY(provider_id) REFERENCES providers(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_lead_payments_status ON lead_payments(status);
+CREATE INDEX IF NOT EXISTS idx_lead_payments_provider ON lead_payments(provider_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_lead_payments_gateway_link
+  ON lead_payments(gateway_payment_link_id)
+  WHERE gateway_payment_link_id IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_lead_payments_gateway_payment
+  ON lead_payments(gateway_payment_id)
+  WHERE gateway_payment_id IS NOT NULL;
