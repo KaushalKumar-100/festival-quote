@@ -167,6 +167,7 @@ async def list_requests(
         sql += " AND r.city LIKE ?"
         params.append(f"%{city}%")
     if q:
+        q = q.strip()[:100]
         sql += " AND (r.name LIKE ? OR r.phone LIKE ? OR r.service LIKE ? OR r.festival LIKE ?)"
         params.extend([f"%{q}%"] * 4)
     sql += " ORDER BY r.created_at DESC LIMIT 300"
