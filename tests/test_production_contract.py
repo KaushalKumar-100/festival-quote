@@ -136,7 +136,7 @@ class ProductionContractTests(unittest.TestCase):
         ):
             html = (ROOT / relative).read_text(encoding="utf-8")
             scripts = re.findall(
-                r"<script(?:s[^>]*)?>([sS]*?)</script>",
+                r"<script[^>]*>(.*?)</script>",
                 html,
                 flags=re.IGNORECASE | re.DOTALL,
             )
