@@ -138,7 +138,7 @@ class ProductionContractTests(unittest.TestCase):
             scripts = re.findall(
                 r"<script(?:s[^>]*)?>([sS]*?)</script>",
                 html,
-                flags=re.IGNORECASE,
+                flags=re.IGNORECASE | re.DOTALL,
             )
             self.assertTrue(scripts, f"{relative} must contain JavaScript")
             for index, script in enumerate(scripts):
