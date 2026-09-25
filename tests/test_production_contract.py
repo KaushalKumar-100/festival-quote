@@ -251,6 +251,14 @@ class ProductionContractTests(unittest.TestCase):
             self.assertIn(feature, quotes)
         for feature in ["Puja Vidhi", "Muhurat", "Mantra", "Traditions", "Samagri"]:
             self.assertIn(feature, guide)
+        self.assertIn('class="ritual"', guide)
+        self.assertIn('id="festivalSelect"', guide)
+        self.assertIn('id="style"', quotes)
+        self.assertIn('id="next"', quotes)
+        for feature in ["wishes", "shayari", "status", "captions", "messages"]:
+            self.assertGreaterEqual(data.count('"'+feature+':'), 1)
+        self.assertGreaterEqual(data.count('May '), 10)
+        self.assertIn('setInterval(next,9000)', quotes)
         for path in ["/festivals.html", "/quotes.html", "/guide.html"]:
             self.assertIn(path, home)
 
