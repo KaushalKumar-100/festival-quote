@@ -118,6 +118,7 @@ class PaymentCreateIn(BaseModel):
 class PaymentStatusIn(BaseModel):
     status: str
     reference: str = Field(default="", max_length=160)
+    payment_url: str | None = Field(default=None, max_length=1000)
     failure_reason: str = Field(default="", max_length=500)
 
 
@@ -505,7 +506,9 @@ async def update_payment_status(
         await database.prepare("""UPDATE lead_payments SET status="refunded",updated_at=CURRENT_TIMESTAMP WHERE id=?""" ).bind(payment_id).run()
         await database.prepare("UPDATE quotes SET provider_paid=0 WHERE id=?").bind(payment["quote_id"]).run()
     else:
-        await database.prepare("UPDATE lead_payments SET status=?,failure_reason=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(payload.status,payload.failure_reason.strip(),payment_id).run()
+        await database.prepare(
+            "UPDATE lead_payments SET status=?,payment_url=COALESCE(?,payment_url),failure_reason=?,updated_at=CURRENT_TIMESTAMP WHERE id=?"
+        ).bind(payload.status,payload.payment_url,payload.failure_reason.strip(),payment_id).run()
     return {"id": payment_id, "status": payload.status}
 
 
