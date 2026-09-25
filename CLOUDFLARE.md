@@ -116,4 +116,4 @@ npx wrangler d1 execute festivalquote-prod --remote --file=./migrations/0003_pay
 
 Local development can use the manual payment flow without Razorpay credentials. The admin can attach a verified external payment URL and reconcile the payment with a gateway/reference ID.
 
-Razorpay Payment Links support sharing by SMS, email and social channels, and their API uses the smallest currency unit (paise for INR). citeturn1search0turn3search10
+Razorpay Payment Links support sharing through messaging/email/social channels, and the API expects INR amounts in paise.
