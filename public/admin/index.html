@@ -34,9 +34,11 @@
   <button class="tab active" data-tab="requestsTab" role="tab">Requests</button>
   <button class="tab" data-tab="providersTab" role="tab">Providers</button>
   <button class="tab" data-tab="quotesTab" role="tab">Quote builder</button>
+  <button class="tab" data-tab="paymentsTab" role="tab">Payments</button>
 </div>
 
 <section id="requestsTab" class="tabbody" role="tabpanel">
+  <div id="pipeline" class="pipeline" aria-label="Request pipeline"></div>
   <div class="toolbar">
     <div class="searchbox"><span>⌕</span><input id="search" aria-label="Search requests" placeholder="Search name, phone, service, festival…"></div>
     <select id="statusFilter" aria-label="Filter by status">
@@ -47,6 +49,21 @@
     <button id="refreshRequests" class="ghost" type="button">↻ Refresh</button>
   </div>
   <div id="requests" aria-live="polite"></div>
+</section>
+
+<section id="paymentsTab" class="tabbody" role="tabpanel" hidden>
+  <div class="panel intro-panel">
+    <div><p class="eyebrow">REVENUE</p><h2>Lead fee payments</h2><p class="muted">Collect the provider lead fee only after the customer selects a quote. Razorpay links are automatic when gateway secrets are configured; otherwise use a verified external payment link and reconcile it here.</p></div>
+    <span class="pill">Provider pays FestivalQuote</span>
+  </div>
+  <div class="toolbar">
+    <select id="paymentStatusFilter" aria-label="Filter payments by status">
+      <option value="">All payment states</option><option value="pending">Pending</option><option value="paid">Paid</option>
+      <option value="failed">Failed</option><option value="waived">Waived</option><option value="refunded">Refunded</option>
+    </select>
+    <button id="refreshPayments" class="ghost" type="button">↻ Refresh</button>
+  </div>
+  <div id="payments" aria-live="polite"></div>
 </section>
 
 <section id="providersTab" class="tabbody" role="tabpanel" hidden>
@@ -126,10 +143,10 @@ async function openDash(e){
   toast("Dashboard connected, but some data could not be loaded. Use Refresh to retry.",true);
  } 
 }
-async function refreshAll(){await Promise.all([loadStats(),loadRequests(),loadProviders()])}
+async function refreshAll(){await Promise.all([loadStats(),loadRequests(),loadProviders(),loadPayments()])}
 async function loadStats(){
  const el=document.getElementById("stats");el.innerHTML='<div class="skeleton-stat"></div>'.repeat(8);
- try{const s=await api("/api/stats");const items=[["requests","Requests","◌"],["new","New","✦"],["sourcing","Sourcing","↗"],["quotes_ready","Quotes ready","✓"],["booked","Booked","★"],["providers","Active providers","♧"],["quotes","Quotes","▣"],["revenue","Lead revenue","₹"]];el.innerHTML=items.map(([k,t,i])=>'<div class="stat"><span class="stat-icon">'+i+'</span><span>'+t+'</span><b>'+(k==="revenue"?"₹"+Number(s[k]||0).toLocaleString("en-IN"):esc(s[k]??0))+'</b></div>').join("")}
+ try{const s=await api("/api/stats");const items=[["requests","Requests","◌"],["new","New","✦"],["sourcing","Sourcing","↗"],["quotes_ready","Quotes ready","✓"],["booked","Booked","★"],["providers","Active providers","♧"],["quotes","Quotes","▣"],["payments_pending","Payments due","◷"],["payments_paid","Paid leads","✓"],["revenue","Revenue","₹"]];el.innerHTML=items.map(([k,t,i])=>'<div class="stat"><span class="stat-icon">'+i+'</span><span>'+t+'</span><b>'+(k==="revenue"?"₹"+Number(s[k]||0).toLocaleString("en-IN"):esc(s[k]??0))+'</b></div>').join("")}
  catch(e){el.innerHTML='<div class="panel inline-error">Could not load dashboard stats. <button class="small ghost" onclick="loadStats()">Retry</button></div>'}
 }
 async function loadRequests(){
@@ -140,8 +157,18 @@ async function loadRequests(){
 }
 function renderRequests(){
  const el=document.getElementById("requests");
+ renderPipeline();
  if(!requestsCache.length){el.innerHTML='<div class="empty"><div class="empty-icon">⌕</div><b>No matching requests</b><p>New customer requests will appear here.</p></div>';return}
  el.innerHTML=requestsCache.map(x=>'<article class="request"><div class="requesthead"><div class="request-main"><div class="request-title"><strong>#'+x.id+' '+esc(x.name)+'</strong><span class="status '+esc(x.status)+'">'+label(x.status)+'</span></div><p>'+esc(x.festival)+' <i>•</i> '+esc(x.service)+' <i>•</i> '+esc(x.city)+' <i>•</i> '+esc(x.event_date)+'</p></div><select aria-label="Change request status for #'+x.id+'" onchange="setStatus('+x.id+',this.value)">'+STATUS.map(s=>'<option value="'+s+'" '+(s===x.status?"selected":"")+'>'+label(s)+'</option>').join("")+'</select></div><div class="request-meta"><span><b>Budget</b> '+esc(x.budget)+'</span><span><b>Phone</b> '+esc(x.phone)+'</span><span><b>Quotes</b> '+esc(x.quote_count)+'</span></div><p class="details">'+esc(x.details||"No extra details")+'</p><div class="actions"><button class="small" onclick="openRequest('+x.id+')">View & manage quotes</button><button class="small ghost" onclick="openTrack('+x.id+')">Open customer tracker ↗</button></div><div id="detail-'+x.id+'" class="detail" hidden></div></article>').join("")
+}
+function renderPipeline(){
+ const el=document.getElementById("pipeline");
+ const counts=STATUS.map(s=>[s,requestsCache.filter(x=>x.status===s).length]);
+ el.innerHTML=counts.map(([s,n])=>'<button class="stage '+s+'" type="button" onclick="filterStage(\''+s+'\')"><span>'+label(s)+'</span><b>'+n+'</b></button>').join("");
+}
+function filterStage(status){
+ document.getElementById("statusFilter").value=status;
+ loadRequests();
 }
 async function setStatus(id,status){
  try{await api("/api/requests/"+id+"/status?status="+encodeURIComponent(status),{method:"PATCH"});toast("Request status updated.");await Promise.all([loadStats(),loadRequests()])}
@@ -158,11 +185,36 @@ function renderDetail(el,j){
  el.innerHTML='<div class="detail-head"><div><h3>Request details</h3><p>'+esc(req.name)+' · '+esc(req.phone)+' '+(req.email?'· '+esc(req.email):'')+'</p></div><button class="small ghost" onclick="copyTracker(req.tracking_path)">Copy tracker</button></div><div class="detail-grid"><div><b>Festival</b><span>'+esc(req.festival)+'</span></div><div><b>Service</b><span>'+esc(req.service)+'</span></div><div><b>Event</b><span>'+esc(req.event_date)+'</span></div><div><b>Budget</b><span>'+esc(req.budget)+'</span></div></div><p class="details">'+esc(req.details||"No extra details")+'</p><div class="quote-head"><h3>Quotes ('+quotes.length+')</h3><button class="small" onclick="prefillQuote('+req.id+')">+ Create quote</button></div>'+ (quotes.length?quotes.map(q=>renderQuote(q,req.id)).join(""):'<div class="empty compact"><b>No quotes yet.</b><p>Contact a relevant provider, verify the details, then create the first option.</p></div>')}
 function renderQuote(q,requestId){
  const statusOptions=QUOTE_STATUS.map(s=>'<option value="'+s+'" '+(s===q.lead_status?"selected":"")+'>'+label(s)+'</option>').join("");
- return '<div class="quoteRow"><div class="quote-main"><div class="quote-provider"><b>'+esc(q.provider)+'</b><span class="availability '+esc(q.availability)+'">'+label(q.availability)+'</span></div><p>'+esc(q.package||"Custom package")+'</p><p class="muted">'+esc(q.response_note||"No response notes")+'</p><div class="quote-contact">'+(q.phone?'<span>☎ '+esc(q.phone)+'</span>':"")+(q.source_url?'<a href="'+esc(q.source_url)+'" target="_blank" rel="noopener">Source ↗</a>':"")+'</div></div><div class="quote-side"><strong>'+(q.price!=null?"₹"+Number(q.price).toLocaleString("en-IN"):"Ask")+'</strong><span>Lead ₹'+esc(q.lead_fee)+'</span><div class="quote-controls"><select id="qs-'+q.id+'" aria-label="Quote status">'+statusOptions+'</select><label class="check"><input id="qc-'+q.id+'" type="checkbox" '+(q.customer_selected?"checked":"")+'> Customer selected</label><label class="check"><input id="qp-'+q.id+'" type="checkbox" '+(q.provider_paid?"checked":"")+'> Provider paid</label><button class="tiny" onclick="saveQuoteStatus('+q.id+','+requestId+')">Save</button></div></div></div>'
+ return '<div class="quoteRow"><div class="quote-main"><div class="quote-provider"><b>'+esc(q.provider)+'</b><span class="availability '+esc(q.availability)+'">'+label(q.availability)+'</span></div><p>'+esc(q.package||"Custom package")+'</p><p class="muted">'+esc(q.response_note||"No response notes")+'</p><div class="quote-contact">'+(q.phone?'<span>☎ '+esc(q.phone)+'</span>':"")+(q.source_url?'<a href="'+esc(q.source_url)+'" target="_blank" rel="noopener">Source ↗</a>':"")+'</div></div><div class="quote-side"><strong>'+(q.price!=null?"₹"+Number(q.price).toLocaleString("en-IN"):"Ask")+'</strong><span>Lead ₹'+esc(q.lead_fee)+'</span><div class="quote-controls"><select id="qs-'+q.id+'" aria-label="Quote status">'+statusOptions+'</select><label class="check"><input id="qc-'+q.id+'" type="checkbox" '+(q.customer_selected?"checked":"")+'> Customer selected</label><span class="payment-chip '+esc(q.payment_status||"unpaid")+'">Payment: '+label(q.payment_status||"unpaid")+'</span><button class="tiny" onclick="saveQuoteStatus('+q.id+','+requestId+')">Save quote</button>'+(q.customer_selected&&!q.provider_paid?'<button class="tiny pay-btn" onclick="createPayment('+q.id+')">Collect ₹'+esc(q.lead_fee)+'</button>':"")+(q.payment_url?'<a class="tiny ghost payment-link" href="'+esc(q.payment_url)+'" target="_blank" rel="noopener">Open payment ↗</a>':"")+'</div></div></div>'
 }
 async function saveQuoteStatus(id,requestId){
  try{await api("/api/quotes/"+id+"/status",{method:"PATCH",body:JSON.stringify({lead_status:document.getElementById("qs-"+id).value,customer_selected:document.getElementById("qc-"+id).checked,provider_paid:document.getElementById("qp-"+id).checked})});toast("Quote status saved.");await loadStats();const detail=document.getElementById("detail-"+requestId);if(detail)detail.hidden=true;await openRequest(requestId)}
  catch(e){toast(e.message||"Could not save quote status.",true)}
+}
+async function createPayment(quoteId){
+ try{
+  const data=await api("/api/quotes/"+quoteId+"/payment",{method:"POST",body:JSON.stringify({})});
+  if(data.payment_url){window.open(data.payment_url,"_blank","noopener");toast("Payment link ready.");}
+  else toast("Payment record created. Add an external payment link if needed.");
+  await Promise.all([loadStats(),loadPayments()]);
+ }catch(e){toast(e.message||"Could not create payment.",true)}
+}
+async function loadPayments(){
+ const el=document.getElementById("payments");if(!el)return;
+ el.innerHTML='<div class="loading-card"><span class="spinner dark"></span> Loading payments…</div>';
+ try{const status=document.getElementById("paymentStatusFilter").value;const qs=status?"?status="+encodeURIComponent(status):"";const data=await api("/api/payments"+qs);renderPayments(data)}
+ catch(e){el.innerHTML='<div class="empty error-state"><b>Could not load payments.</b><p>'+esc(e.message)+'</p><button class="small" onclick="loadPayments()">Try again</button></div>'}
+}
+function renderPayments(items){
+ const el=document.getElementById("payments");
+ if(!items.length){el.innerHTML='<div class="empty"><div class="empty-icon">₹</div><b>No payments</b><p>Payments will appear when a customer selects a quote.</p></div>';return}
+ el.innerHTML=items.map(p=>'<article class="payment-row"><div><div class="payment-title"><b>#'+p.id+' · Quote #'+p.quote_id+' · '+esc(p.provider)+'</b><span class="payment-chip '+esc(p.status)+'">'+label(p.status)+'</span></div><p>'+esc(p.customer)+' · '+esc(p.service)+' · '+esc(p.city)+'</p><p class="muted">₹'+Number(p.amount).toLocaleString("en-IN")+' · '+label(p.gateway)+' · '+esc(p.reference_id)+'</p></div><div class="payment-actions">'+(p.payment_url?'<a class="small ghost" href="'+esc(p.payment_url)+'" target="_blank" rel="noopener">Open link ↗</a>':"")+(p.status==="pending"?'<button class="small" onclick="markPayment('+p.id+',\'paid\')">Mark paid</button><button class="small ghost" onclick="markPayment('+p.id+',\'failed\')">Failed</button>':"")+(p.status==="paid"?'<button class="small ghost" onclick="markPayment('+p.id+',\'refunded\')">Refunded</button>':"")+'</div></article>').join("")
+}
+async function markPayment(id,status){
+ const reference=status==="paid"?(window.prompt("Enter gateway/payment reference:")||"").trim():"";
+ if(status==="paid"&&!reference){toast("Payment reference is required.",true);return}
+ try{await api("/api/payments/"+id+"/status",{method:"PATCH",body:JSON.stringify({status,reference})});toast("Payment updated.");await Promise.all([loadStats(),loadPayments(),loadRequests()])}
+ catch(e){toast(e.message||"Could not update payment.",true)}
 }
 function openTrack(id){const x=requestsCache.find(r=>r.id===id);if(x?.tracking_path)window.open(x.tracking_path,"_blank","noopener");else toast("Tracking link unavailable.",true)}
 async function copyProviderPortal(id){
@@ -203,6 +255,8 @@ document.getElementById("loginForm").addEventListener("submit",openDash);
 document.getElementById("lockBtn").addEventListener("click",()=>{KEY="";location.reload()});
 document.getElementById("refreshRequests").addEventListener("click",loadRequests);
 document.getElementById("refreshProviders").addEventListener("click",loadProviders);
+document.getElementById("refreshPayments").addEventListener("click",loadPayments);
+document.getElementById("paymentStatusFilter").addEventListener("change",loadPayments);
 document.getElementById("search").addEventListener("input",()=>{clearTimeout(searchTimer);searchTimer=setTimeout(loadRequests,250)});
 document.getElementById("statusFilter").addEventListener("change",loadRequests);
 document.getElementById("providerSearch").addEventListener("input",renderProviders);
