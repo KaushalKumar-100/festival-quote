@@ -104,12 +104,27 @@ function copyTracker(path){const url=location.origin+path;if(navigator.clipboard
 function toast(text,error=false){const el=document.getElementById("toast");el.textContent=text;el.className="toast show "+(error?"error":"");setTimeout(()=>el.className="toast",3000)}
 async function api(url,options={}){const r=await fetch(url,{...options,headers:{...H(),...(options.headers||{})}});const text=await r.text();let data={};try{data=text?JSON.parse(text):{}}catch{data={detail:"The server returned an unexpected response."}}if(!r.ok)throw Error(data.detail||"Request failed");return data}
 function setButton(btn,busy,text){if(!btn)return;btn.disabled=busy;if(busy){btn.dataset.oldText=btn.innerHTML;btn.innerHTML='<span class="spinner"></span> '+text}else if(btn.dataset.oldText){btn.innerHTML=btn.dataset.oldText;delete btn.dataset.oldText}}
-async function openDash(){
+async function openDash(e){
+ if(e)e.preventDefault();
  const key=document.getElementById("key").value.trim(),btn=document.getElementById("loginBtn"),msg=document.getElementById("loginMsg");
- if(!key){msg.textContent="Enter your admin key.";return} KEY=key;setButton(btn,true,"Checking…");
- try{await api("/api/stats");document.getElementById("login").hidden=true;document.getElementById("dash").hidden=false;await refreshAll();toast("Dashboard connected.");}
- catch(e){KEY="";msg.textContent=e.message||"Invalid admin key."}
- finally{setButton(btn,false)}
+ if(!key){msg.textContent="Enter your admin key.";return}
+ KEY=key;msg.textContent="";setButton(btn,true,"Checking…");
+ try{
+  await api("/api/stats");
+ }catch(e){
+  KEY="";msg.textContent=e.message||"Invalid admin key.";
+  setButton(btn,false);
+  return;
+ }
+ document.getElementById("login").hidden=true;
+ document.getElementById("dash").hidden=false;
+ setButton(btn,false);
+ try{
+  await refreshAll();
+  toast("Dashboard connected.");
+ }catch(e){
+  toast("Dashboard connected, but some data could not be loaded. Use Refresh to retry.",true);
+ } 
 }
 async function refreshAll(){await Promise.all([loadStats(),loadRequests(),loadProviders()])}
 async function loadStats(){
