@@ -33,6 +33,18 @@ Local D1 is intentionally separate from the remote production D1. Initialize it 
 npx wrangler d1 execute festivalquote-prod --local --file=./schema.sql
 ```
 
+## Cloudflare Workers Builds
+
+Because this is a Python Worker, do not leave Workers Builds on its default `npx wrangler deploy` command. Configure **Settings → Builds** for the Worker as follows:
+
+- Build command: leave empty
+- Production deploy command: `npm run deploy`
+- Non-production/preview command: `npm run preview`
+- Root directory: `/`
+- Production branch: `main`
+
+Cloudflare's Workers Builds defaults to `npx wrangler deploy`; the repository now provides explicit `npm run deploy` / `npm run preview` commands that invoke `pywrangler`, which bundles Python dependencies correctly. See the current Cloudflare Workers Builds configuration guidance.
+
 ## Production
 
 Before deploying, make sure the D1 binding in `wrangler.jsonc` points at the intended database and the Worker secret exists:
@@ -55,6 +67,9 @@ The `ADMIN_KEY` must never be placed in frontend JavaScript, `.env` files commit
 Do not move the live application back to Render/Vercel without deliberately migrating the D1 data model, authentication, API base URL, and deployment secrets.
 
 ## Production checklist
+
+- [ ] Workers Builds deploy command is `npm run deploy`
+- [ ] Workers Builds preview command is `npm run preview`
 
 - [ ] `ADMIN_KEY` stored as a Worker secret
 - [ ] Remote D1 schema verified
