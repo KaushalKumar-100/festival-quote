@@ -188,8 +188,16 @@ function renderQuote(q,requestId){
  return '<div class="quoteRow"><div class="quote-main"><div class="quote-provider"><b>'+esc(q.provider)+'</b><span class="availability '+esc(q.availability)+'">'+label(q.availability)+'</span></div><p>'+esc(q.package||"Custom package")+'</p><p class="muted">'+esc(q.response_note||"No response notes")+'</p><div class="quote-contact">'+(q.phone?'<span>☎ '+esc(q.phone)+'</span>':"")+(q.source_url?'<a href="'+esc(q.source_url)+'" target="_blank" rel="noopener">Source ↗</a>':"")+'</div></div><div class="quote-side"><strong>'+(q.price!=null?"₹"+Number(q.price).toLocaleString("en-IN"):"Ask")+'</strong><span>Lead ₹'+esc(q.lead_fee)+'</span><div class="quote-controls"><select id="qs-'+q.id+'" aria-label="Quote status">'+statusOptions+'</select><label class="check"><input id="qc-'+q.id+'" type="checkbox" '+(q.customer_selected?"checked":"")+'> Customer selected</label><span class="payment-chip '+esc(q.payment_status||"unpaid")+'">Payment: '+label(q.payment_status||"unpaid")+'</span><button class="tiny" onclick="saveQuoteStatus('+q.id+','+requestId+')">Save quote</button>'+(q.customer_selected&&!q.provider_paid?'<button class="tiny pay-btn" onclick="createPayment('+q.id+')">Collect ₹'+esc(q.lead_fee)+'</button>':"")+(q.payment_url?'<a class="tiny ghost payment-link" href="'+esc(q.payment_url)+'" target="_blank" rel="noopener">Open payment ↗</a>':"")+'</div></div></div>'
 }
 async function saveQuoteStatus(id,requestId){
- try{await api("/api/quotes/"+id+"/status",{method:"PATCH",body:JSON.stringify({lead_status:document.getElementById("qs-"+id).value,customer_selected:document.getElementById("qc-"+id).checked,provider_paid:document.getElementById("qp-"+id).checked})});toast("Quote status saved.");await loadStats();const detail=document.getElementById("detail-"+requestId);if(detail)detail.hidden=true;await openRequest(requestId)}
- catch(e){toast(e.message||"Could not save quote status.",true)}
+ try{
+  await api("/api/quotes/"+id+"/status",{method:"PATCH",body:JSON.stringify({
+   lead_status:document.getElementById("qs-"+id).value,
+   customer_selected:document.getElementById("qc-"+id).checked
+  })});
+  toast("Quote status saved.");
+  await loadStats();
+  const detail=document.getElementById("detail-"+requestId);if(detail)detail.hidden=true;
+  await openRequest(requestId);
+ }catch(e){toast(e.message||"Could not save quote status.",true)}
 }
 async function createPayment(quoteId){
  try{
