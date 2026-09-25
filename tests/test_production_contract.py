@@ -178,6 +178,23 @@ class ProductionContractTests(unittest.TestCase):
         self.assertNotIn("portal_token_hash", admin)
         self.assertIn('"/api/providers/"+id+"/portal-link"', admin)
 
+    def test_festival_content_hubs_are_present(self):
+        data = (ROOT / "public" / "festival-data.js").read_text(encoding="utf-8")
+        festivals = (ROOT / "public" / "festivals.html").read_text(encoding="utf-8")
+        quotes = (ROOT / "public" / "quotes.html").read_text(encoding="utf-8")
+        guide = (ROOT / "public" / "guide.html").read_text(encoding="utf-8")
+        home = (ROOT / "public" / "index.html").read_text(encoding="utf-8")
+        for name in ["Diwali", "Durga Puja", "Chhath", "Navratri", "Dussehra"]:
+            self.assertIn(name, data)
+        for feature in ["wishes", "shayari", "status", "captions", "messages"]:
+            self.assertIn(feature, data)
+        for feature in ["WhatsApp", "Instagram", "Download PNG", "Copy text"]:
+            self.assertIn(feature, quotes)
+        for feature in ["Puja Vidhi", "Muhurat", "Mantra", "Traditions", "Samagri"]:
+            self.assertIn(feature, guide)
+        for path in ["/festivals.html", "/quotes.html", "/guide.html"]:
+            self.assertIn(path, home)
+
     def test_payment_workflow_is_present(self):
         schema = (ROOT / "schema.sql").read_text(encoding="utf-8")
         migration = (ROOT / "migrations" / "0003_payments.sql").read_text(encoding="utf-8")
