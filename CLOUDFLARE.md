@@ -58,7 +58,15 @@ The current database ID is intentionally stored in `wrangler.jsonc` because it i
 
 ## GitHub automatic deployments
 
-Cloudflare Workers Builds can deploy the `main` branch automatically. Keep the D1 binding configured in the Worker.
+Cloudflare Workers Builds can deploy the `main` branch automatically. Configure the connected Worker under **Settings → Builds** with:
+
+- Build command: leave empty
+- Production deploy command: `npm run deploy`
+- Non-production/preview command: `npm run preview`
+- Root directory: `/`
+- Production branch: `main`
+
+The repository uses these explicit scripts instead of the default `npx wrangler deploy` so Python Worker dependencies are bundled through `pywrangler`.
 
 Review changes before merging production-impacting code. The project includes GitHub Actions checks that compile both the legacy backend and the active Python Worker.
 
