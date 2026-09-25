@@ -454,6 +454,8 @@ async def create_lead_payment(
     key_id = getattr(request.scope["env"], "RAZORPAY_KEY_ID", "")
     key_secret = getattr(request.scope["env"], "RAZORPAY_KEY_SECRET", "")
     if key_id and key_secret and not payment_url:
+        if amount < 100:
+            raise HTTPException(status_code=400, detail="Razorpay lead-fee links require an amount of at least ₹100")
         auth = base64.b64encode(f"{key_id}:{key_secret}".encode()).decode()
         body = {"amount": amount * 100, "currency": "INR", "reference_id": reference_id,
                 "description": f"FestivalQuote lead fee for quote #{quote_id}",
