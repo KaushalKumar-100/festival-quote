@@ -1,5 +1,9 @@
 import pathlib
+import re
+import shutil
 import sqlite3
+import subprocess
+import tempfile
 import unittest
 from html.parser import HTMLParser
 
@@ -114,6 +118,32 @@ class ProductionContractTests(unittest.TestCase):
                 f"{relative} must be noindex",
             )
 
+
+    def test_private_page_javascript_parses(self):
+        node = shutil.which("node")
+        self.assertIsNotNone(node, "Node.js is required to validate private-page JavaScript")
+        for relative in ("public/admin/index.html", "public/provider.html", "public/track.html", "public/my-requests.html"):
+            html = (ROOT / relative).read_text(encoding="utf-8")
+            scripts = re.findall(r"<script(?:\\s[^>]*)?>([\\s\\S]*?)</script>", html, flags=re.IGNORECASE)
+            self.assertTrue(scripts, f"{relative} must contain JavaScript")
+            for index, script in enumerate(scripts):
+                with tempfile.NamedTemporaryFile("w", suffix=".js", encoding="utf-8", delete=False) as handle:
+                    handle.write(script)
+                    path = handle.name
+                try:
+                    result = subprocess.run(
+                        [node, "--check", path],
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
+                    self.assertEqual(
+                        result.returncode,
+                        0,
+                        f"{relative} script #{index + 1} has invalid JavaScript:\\n{result.stderr}",
+                    )
+                finally:
+                    pathlib.Path(path).unlink(missing_ok=True)
 
     def test_provider_portal_uses_bearer_token_without_exposing_token_storage(self):
         worker = (ROOT / "src/worker.py").read_text(encoding="utf-8")
