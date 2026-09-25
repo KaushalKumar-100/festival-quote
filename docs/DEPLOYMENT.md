@@ -93,7 +93,7 @@ Do not move the live application back to Render/Vercel without deliberately migr
 - [ ] Admin login tested
 - [ ] Provider activation verified
 - [ ] Quote creation tested
-- [ ] Quote status/payment recording tested
+- [ ] Quote status tracking tested
 - [ ] Mobile layout checked
 - [ ] Cloudflare Logs/Observability checked after deployment
 
