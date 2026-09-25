@@ -1,46 +1,167 @@
 window.FQ_DATA={
  festivals:[
   {id:"diwali",name:"Diwali",icon:"🪔",tag:"Festival of lights",services:["Decoration","Puja","Gifting","Catering"],guide:{
-   vidhi:["Clean the home and puja space.","Prepare Lakshmi-Ganesh puja items and place the idols respectfully.","Light diyas and offer flowers, fruits, sweets and other prepared offerings.","Recite your family or local puja prayers and perform aarti.","Distribute prasad and safely extinguish flames when finished."],
-   muhurat:"Lakshmi Puja muhurat changes each year and by location. Check a current local panchang before fixing the exact time.",
+   intro:"A detailed home-friendly Lakshmi-Ganesh worship outline. Traditional Diwali puja can be much longer than a short household version, and the exact sequence varies by sampradaya, family and region.",
+   caution:"If your family priest or tradition follows a different paddhati, follow that tradition. Exact muhurat is location- and year-dependent.",
+   sections:[
+    {title:"1. Prepare the home and puja space",purpose:"Traditional preparations emphasize cleanliness, a dedicated worship space and an orderly altar before the main worship begins.",steps:["Clean the home and especially the puja area. If your family tradition includes it, decorate the entrance with rangoli and toran/flowers.","Set a clean raised platform or chowki and cover it with a suitable cloth. Keep the area uncluttered so offerings can be arranged safely.","Keep Lakshmi and Ganesha images or idols ready. Some traditions also include Saraswati, Kubera, account books or business-related worship.","Arrange the samagri in advance: flowers, akshata, kumkum, sandalwood, incense, lamps, fruits, sweets, water, kalash items and dakshina."]},
+    {title:"2. Kalash Sthapana and Sankalp",purpose:"Kalash worship represents an auspicious sacred vessel and is used in many Hindu puja traditions.",steps:["Place the kalash on the prepared altar and fill it according to your family paddhati. Common preparations include water, akshata, a coin, supari and leaves, with a coconut placed above it.","Tie moli or sacred thread if that is part of your tradition and decorate the kalash respectfully.","Sit facing the appropriate direction according to your family practice, steady the mind and make a sankalp stating the purpose of the puja, family and occasion.","Perform a short self-purification or shanti prayer if included in your household paddhati."]},
+    {title:"3. Ganesha Puja",purpose:"Ganesha is traditionally worshipped before beginning the main sequence in many household pujas.",steps:["Invoke Lord Ganesha and offer a seat, water or symbolic offerings as prescribed by your paddhati.","Offer sandalwood or kumkum, akshata, flowers and durva where customary.","Offer incense and a lamp, followed by naivedya such as fruit or sweets.","Recite the Ganesha prayer or mantra used by your family and request removal of obstacles before the main Lakshmi worship."]},
+    {title:"4. Lakshmi Shodashopachara-style worship",purpose:"A full Lakshmi puja can use a sequence of upacharas. Drik Panchang's detailed Diwali Lakshmi vidhi describes dhyanam, avahanam, asana, welcome, padya, arghya, snana and further offerings through naivedya, dakshina, pradakshina and prayer.",steps:["Dhyanam: contemplate Lakshmi and focus the mind on the deity before beginning the offerings.","Avahanam: respectfully invoke Lakshmi to accept the worship.","Asana and Swagata: offer a symbolic seat and welcome.","Padya and Arghya: offer symbolic water for the feet and ceremonial welcome.","Snana: in a full ritual, offer water and, where appropriate to the idol and tradition, panchamrita and other bathing offerings; for painted or delicate murtis, use symbolic offerings instead of physically bathing the image.","Vastra, alankara, gandha, akshata and pushpa: offer cloth, decoration, sandalwood, rice and flowers according to the family paddhati.","Dhupa and Deepa: offer incense and the lit lamp with care around children, fabric and combustible items.","Naivedya: place clean prepared food, fruits and sweets before the deity. Keep a separate clean portion for offering.","Tambula, dakshina, pradakshina and pushpanjali may be included where customary, followed by a sincere prayer and namaskara.","Conclude with Lakshmi aarti and a forgiveness prayer for any omissions or mistakes."]},
+    {title:"5. Optional associated worship",purpose:"Different communities add other forms of worship to Diwali night.",steps:["Business families may include Chopda Pujan or worship of account books and work instruments.","Some traditions include Kubera worship for prosperity-related observance.","Saraswati or other household deities may be included according to family practice.","Do not assume every listed component is mandatory for every family; the sequence is tradition-dependent."]},
+    {title:"6. Deepa, prasad and conclusion",purpose:"The conclusion keeps the devotional focus while returning the home to normal activity safely.",steps:["Perform aarti and distribute prasad respectfully.","Keep lamps only where they can be safely supervised. Do not leave open flames unattended.","If your tradition includes continued lamp-lighting or devotional reading, follow the family practice safely.","Dispose of flowers and other offerings respectfully according to local custom and environmental rules."]},
+   ],
    mantra:"ॐ श्री महालक्ष्म्यै नमः",
-   traditions:["Lighting diyas","Lakshmi-Ganesh puja","Rangoli","Sharing sweets and gifts"],
-   samagri:["Diyas","Oil or ghee","Cotton wicks","Flowers","Fruits","Sweets","Incense","Kumkum","Rice","Kalash"]
+   traditions:["Lakshmi-Ganesh puja","Lighting diyas","Rangoli","Sharing sweets and gifts","Business/account-book worship in some communities"],
+   samagri:["Lakshmi-Ganesha images or idols","Chowki and clean cloth","Kalash, water and coconut","Flowers and garlands","Akshata/rice","Kumkum and sandalwood","Diyas, oil/ghee and wicks","Incense","Fruits and sweets","Naivedya","Moli/thread","Dakshina"],
+   muhurat:"Exact Lakshmi Puja muhurat changes by year and city. Use a current local panchang rather than a fixed clock time."
   }},
   {id:"durga-puja",name:"Durga Puja",icon:"🙏",tag:"Devotion, community & celebration",services:["Puja","Decoration","Catering","Photography"],guide:{
-   vidhi:["Follow the puja sequence prescribed by your family, temple or priest.","Prepare the altar and required offerings before the scheduled worship.","Offer flowers, food and other samagri according to local tradition.","Participate in aarti and community observances.","Follow local immersion and environmental guidance where applicable."],
-   muhurat:"Exact timings depend on the year and location. Follow the local pandal, temple or panchang schedule.",
+   intro:"Durga Puja has major regional traditions. Bengali Durga Puja follows a multi-day sequence around Shashthi through Dashami, while household Navratri worship elsewhere can follow a different paddhati.",
+   caution:"The outline below is a practical overview, not a replacement for a priest-led paddhati or a community's prescribed ritual order.",
+   sections:[
+    {title:"1. Prepare the puja space",purpose:"The altar, offerings and environment are prepared before the main worship.",steps:["Clean the worship space and arrange the deity image or murti according to local tradition.","Prepare flowers, bel leaves where prescribed, fruits, sweets, incense, lamps, water and other samagri.","If participating in a community pandal, follow the organizers' ritual and safety instructions rather than changing the sequence yourself."]},
+    {title:"2. Shashthi — invocation and welcome",purpose:"In Bengali traditions, Shashthi marks an important transition into the principal Durga Puja observances.",steps:["Attend or perform the local Shashthi observances according to the family or community paddhati.","Where prescribed, Bilva Nimantran and other invitation rituals are performed before the main days.","Keep the evening worship focused on invocation, prayer and preparation for Saptami."]},
+    {title:"3. Saptami — Navapatrika and main worship",purpose:"Saptami introduces important ritual elements and the principal worship sequence.",steps:["In traditions that observe it, Navapatrika is prepared and ceremonially installed.","Perform the prescribed bathing, invocation and offerings according to the local paddhati.","Offer flowers, food, incense and lamp, followed by aarti or community worship."]},
+    {title:"4. Ashtami — major devotional observance",purpose:"Ashtami is one of the principal days of Durga worship.",steps:["Participate in the morning worship and pushpanjali where practiced.","Perform the prescribed offerings and aarti according to the family or pandal tradition.","Sandhi Puja is a specialized observance performed around the transition between Ashtami and Navami in traditions that follow it; use the exact local timing and priest's instructions."]},
+    {title:"5. Navami — completion of principal worship",purpose:"Navami continues the main Durga worship and devotional offerings.",steps:["Perform or attend the prescribed Navami puja and offerings.","Participate in aarti, devotional songs and community observances as appropriate.","Where a tradition includes homa or other specialized rites, these should be performed by trained practitioners or under priestly guidance."]},
+    {title:"6. Dashami — farewell and immersion",purpose:"The festival concludes with farewell rites and, where applicable, visarjan.",steps:["Follow the community's Dashami farewell rituals and prayers.","In Bengali communities, Sindoor Khela may be practiced by eligible participants according to local custom.","For immersion, follow the designated route, permitted water body and environmental instructions."]},
+   ],
    mantra:"ॐ दुं दुर्गायै नमः",
-   traditions:["Pandal visits","Aarti","Cultural programs","Sindoor Khela in communities where it is practiced"],
-   samagri:["Flowers","Fruits","Incense","Diyas","Kumkum","Rice","Sweets","Cloth/offering items as locally prescribed"]
+   traditions:["Pandal worship","Pushpanjali","Aarti","Cultural programs","Sindoor Khela in communities where practiced","Visarjan"],
+   samagri:["Durga image or murti","Flowers","Bel leaves where prescribed","Fruits","Sweets","Incense","Diyas","Kumkum","Akshata","Naivedya"],
+   muhurat:"Durga Puja dates and ritual timings are calendar- and location-dependent. Follow the local pandal, temple or current panchang schedule."
   }},
   {id:"chhath",name:"Chhath Puja",icon:"🌅",tag:"Sun worship & disciplined observance",services:["Samagri","Ghat setup","Catering","Decoration"],guide:{
-   vidhi:["Prepare vrat and puja materials according to family and community practice.","Keep thekua, fruits and other offerings ready as prescribed locally.","Observe the community schedule for arghya at sunset and sunrise.","Use clean, safe access at the ghat and follow local crowd guidance.","Conclude the observance according to your family tradition."],
-   muhurat:"Arghya timings are sunrise/sunset times for the local location and date; verify the current local schedule.",
+   intro:"Chhath is a four-day observance centered on worship of Surya. Its disciplined fasting and offering practices are important, so health and family/community guidance should be respected.",
+   caution:"Fasting rules can be demanding. People with medical conditions, children, older adults or anyone unsure about fasting should seek appropriate medical or family guidance rather than copying a strict vrat blindly.",
+   sections:[
+    {title:"1. Nahay Khay",purpose:"The first day begins the four-day observance and emphasizes purification and preparation.",steps:["Clean the home and puja utensils and prepare a dedicated cooking area.","Where practiced, the vrat holder takes a ritual bath and prepares the day's satvik meal.","The day's food is traditionally simple and prepared with strict cleanliness; follow the family recipe and regional custom.","Begin preparing the baskets, soop/daura and offerings needed for the later arghya days."]},
+    {title:"2. Kharna / Lohanda",purpose:"The second day is marked by a day-long fast followed by an evening offering and prasad.",steps:["Prepare the day's ritual food and maintain the cleanliness rules followed by the family.","The vrat holder observes the prescribed fast and breaks it only according to the traditional Kharna sequence.","After sunset, prepare and offer the Kharna prasad according to local practice, commonly including preparations such as gur-based kheer and roti.","After the prasad, the longer fast for the main Chhath day begins according to the family's observance."]},
+    {title:"3. Sandhya Arghya",purpose:"The third day centers on offering arghya to the setting Sun.",steps:["Prepare the soop/daura with the traditional fruits and offerings such as thekua, sugarcane and seasonal produce.","Reach a clean, permitted ghat or worship area with enough time to assemble safely.","Stand at the water's edge or designated place and offer arghya to the setting Sun with the prescribed prayer and devotional songs.","Maintain the fast through the night according to the vrat tradition."]},
+    {title:"4. Usha Arghya and Parana",purpose:"The fourth day concludes the main fast with an offering to the rising Sun.",steps:["Return to the ghat before sunrise and prepare the offerings.","Offer arghya to the rising Sun and complete the family's concluding prayers.","After the prescribed worship, perform parana and break the fast according to the household tradition.","Clean and store reusable puja items and dispose of natural offerings respectfully."]},
+   ],
    mantra:"ॐ आदित्याय नमः",
-   traditions:["Ghat preparation","Thekua and seasonal offerings","Evening arghya","Morning arghya"],
-   samagri:["Soop","Daura","Thekua","Seasonal fruits","Sugarcane","Diyas","Milk","Water","Flowers"]
+   traditions:["Nahay Khay","Kharna","Sandhya Arghya","Usha Arghya","Thekua and seasonal offerings","Ghat worship"],
+   samagri:["Soop and daura","Thekua","Sugarcane","Seasonal fruits","Diyas","Milk","Water","Flowers","Rice","Gur","Clean cloth"],
+   muhurat:"Arghya is tied to the local sunset and sunrise on the relevant days. Use the current local Chhath calendar for exact timings."
   }},
   {id:"navratri",name:"Navratri",icon:"✨",tag:"Nine nights of devotion",services:["Puja","Decoration","Events","Gifting"],guide:{
-   vidhi:["Set up a clean worship space and follow your family or community Navratri practice.","Prepare the prescribed kalash and offerings if your tradition includes them.","Observe fasting rules only as appropriate for you and your household.","Attend aarti, garba or other community events according to local custom.","Complete the final-day observance according to your family tradition."],
-   muhurat:"Ghatasthapana timing varies by year and location. Verify the local panchang for the exact time.",
+   intro:"Shardiya Navratri traditions differ across regions. Ghatasthapana, daily worship, fasting, aarti and the final-day observance are common themes, but the exact paddhati varies.",
+   caution:"Fasting and ritual rules are personal and tradition-dependent. Follow your family or community practice and do not undertake medically unsuitable fasting.",
+   sections:[
+    {title:"1. Ghatasthapana / Kalash Sthapana",purpose:"The kalash is installed as the opening observance of Navratri in traditions that follow Ghatasthapana.",steps:["Prepare a clean worship area and a wide clay pot for sowing the prescribed grains.","Place clean soil and seeds according to the local paddhati, then prepare the kalash with water, sacred thread and customary items.","Place leaves and a coconut as prescribed and set the kalash over the prepared grain bed.","Invoke Goddess Durga/Shakti and perform the simple panchopachara or fuller worship prescribed by your tradition."]},
+    {title:"2. Daily Navratri worship",purpose:"The nine-day period is maintained through daily devotion and observance.",steps:["Keep the altar clean and offer fresh flowers, lamp, incense and naivedya according to your practice.","Recite Durga stuti, aarti, mantra or scripture readings used by your family or community.","Water the sprouted grains if your tradition includes this, taking care not to overwater.","Observe the fasting pattern chosen by your household rather than assuming one rule applies to everyone."]},
+    {title:"3. Community celebrations",purpose:"Navratri may combine household worship with community events.",steps:["Attend garba, dandiya, aarti or temple events according to local custom.","Keep traditional clothing and public celebration separate from the core household puja sequence.","Follow venue safety, crowd management and noise restrictions at public events."]},
+    {title:"4. Ashtami / Navami observances",purpose:"Many traditions mark the later days with special worship.",steps:["Perform the special puja, bhog or aarti prescribed by your family or community.","Kanya Puja may be observed in some traditions; if your family follows it, prepare the food and welcome ritual respectfully.","Complete any homa or specialized ritual only according to the established family/temple paddhati."]},
+    {title:"5. Completion and visarjan",purpose:"The festival concludes with a respectful closing of the temporary worship arrangement.",steps:["Offer final prayers and aarti according to your tradition.","Conclude the kalash/temporary installation respectfully; the exact visarjan or conclusion varies by household.","Return the worship space to normal and handle natural materials respectfully."]},
+   ],
    mantra:"ॐ ऐं ह्रीं क्लीं चामुण्डायै विच्चे",
-   traditions:["Ghatasthapana","Aarti","Garba and Dandiya","Kanya Puja in traditions where observed"],
-   samagri:["Kalash","Coconut","Mango leaves","Flowers","Diyas","Incense","Fruits","Prasad"]
+   traditions:["Ghatasthapana","Daily aarti","Garba and Dandiya","Kanya Puja in traditions where observed","Durga Saptashati or other devotional reading"],
+   samagri:["Kalash","Coconut","Mango/Ashoka leaves","Soil and prescribed seeds","Flowers","Diyas","Incense","Fruits","Prasad","Moli/thread"],
+   muhurat:"Ghatasthapana timing is especially dependent on tithi and local sunrise/midday calculations. Use a current local panchang for the exact time."
   }},
-  {id:"dussehra",name:"Dussehra",icon:"🏹",tag:"Victory of good over evil",services:["Events","Decoration","Catering","Photography"],guide:{
-   vidhi:["Follow the local Dussehra or Vijayadashami observance.","Visit the designated community celebration or temple if desired.","Participate in prayers and aarti according to local tradition.","Follow event safety guidance around large public gatherings.","Observe local customs for the concluding ceremony."],
-   muhurat:"Vijayadashami timings vary by year and location; verify a current local panchang.",
+  {id:"dussehra",name:"Dussehra",icon:"🏹",tag:"Vijayadashami and regional victory traditions",services:["Events","Decoration","Catering","Photography"],guide:{
+   intro:"Vijayadashami is observed through different traditions, including Rama-related celebrations, Durga Vijayadashami, Shami Puja, Aparajita Puja and Ayudha Puja in different regions.",
+   caution:"Do not treat one regional custom as universal. Follow the tradition practiced by your family, temple or community.",
+   sections:[
+    {title:"1. Prepare for Vijayadashami",purpose:"The day begins with cleanliness, worship preparation and awareness of the local celebration.",steps:["Clean the worship space and prepare flowers, incense, lamp, fruits and other locally prescribed offerings.","If attending Ramlila, a procession or a public event, check the official schedule and venue instructions.","Prepare tools, books, instruments or vehicles only if your regional tradition includes Ayudha Puja or related worship."]},
+    {title:"2. Rama-related worship",purpose:"Many communities connect Dussehra with the victory of Rama over Ravana.",steps:["Read or listen to a suitable Ramayana passage or attend Ramlila according to local custom.","Offer flowers, incense, lamp and naivedya to the chosen deity.","Perform aarti and prayer for dharma, courage and good conduct."]},
+    {title:"3. Shami / Aparajita Puja",purpose:"Some Vijayadashami traditions include Shami Puja, Aparajita Puja or Seema Avalanghan.",steps:["Perform these observances during the locally prescribed Aparahna period when your tradition includes them.","Offer flowers, water, kumkum or other customary items according to the family paddhati.","If the tradition involves visiting a boundary or specific tree/shrine, follow local safety and customary guidance."]},
+    {title:"4. Ayudha Puja and work instruments",purpose:"In several regional traditions, tools and instruments are respectfully worshipped.",steps:["Clean the tools, books, instruments or equipment that are traditionally included.","Place them in a clean area and offer flowers, sandalwood/kumkum, akshata, lamp and prayer as prescribed.","Resume normal use only after the ritual is concluded according to the local custom."]},
+    {title:"5. Public celebration and conclusion",purpose:"The festival often ends with community events and symbolic celebrations.",steps:["Attend public events responsibly and follow crowd and fire-safety instructions.","Where effigies or fireworks are part of the local event, use only authorized public displays and follow local regulations.","Conclude with prasad, family prayers and respectful cleanup."]},
+   ],
    mantra:"ॐ श्री रामाय नमः",
-   traditions:["Ramlila","Community processions","Ayudha Puja in traditions where observed","Public celebrations"],
-   samagri:["Flowers","Diyas","Incense","Fruits","Sweets","Kumkum","Rice"]
+   traditions:["Ramlila","Vijayadashami puja","Shami Puja in some regions","Aparajita Puja in some regions","Ayudha Puja in some regions","Community celebrations"],
+   samagri:["Flowers","Diyas","Incense","Fruits","Sweets","Kumkum","Akshata","Tools/books where customary"],
+   muhurat:"Vijayadashami observances such as Vijay Muhurat and Aparahna Puja are location- and year-dependent. Verify the current local panchang."
   }}
  ],
  quotes:{
-  wishes:["May your festival be filled with light, peace and joyful moments.","Wishing you and your family a beautiful celebration filled with happiness and blessings.","May this festive season bring prosperity, harmony and countless reasons to smile."],
-  shayari:["हर दीप में उम्मीद जले, हर दिल में खुशियाँ रहें।","त्योहार की रोशनी आपके घर में सुख और शांति लाए।","रिश्तों की मिठास और खुशियों की बहार, मुबारक हो आपको ये त्योहार।"],
-  status:["Festive vibes. Family time. Happy hearts. 🪔","Lights on, worries off. ✨","Celebration mode: ON 🎉"],
-  captions:["Celebrating tradition, family and the little moments that make festivals special. 🪔","A little light, a lot of love, and a heart full of gratitude. ✨","Tradition in the heart, celebration in the moment. 🙏"],
-  messages:["Wishing you a joyful festival. May your home be filled with peace, prosperity and happiness.","Warm festive wishes to you and your family. Have a safe and memorable celebration."]
+  wishes:[
+   "May every lamp you light bring a little more peace, warmth and hope into your home.",
+   "May this festival fill your home with laughter, your heart with gratitude and your days with light.",
+   "Wishing you a celebration where old traditions meet new memories and every moment feels blessed.",
+   "May the season bring prosperity to your doorstep and kindness to every heart around you.",
+   "May your family gather with joy, your prayers rise with faith, and your home glow with happiness.",
+   "May this festive light guide you toward peaceful days, beautiful beginnings and abundant blessings.",
+   "Wishing you bright mornings, peaceful evenings and a festival filled with people you love.",
+   "May every diya remind you that even a small light can brighten a very dark room.",
+   "May your celebrations be rich in memories, gentle in spirit and beautiful in every little detail.",
+   "Sending warm festive wishes for a home full of smiles, hearts full of faith and days full of hope.",
+   "May your festival table be full, your family be close and your heart be lighter than yesterday.",
+   "May tradition keep you rooted, love keep you close and hope keep your inner light glowing.",
+   "May the blessings of the festival stay with you long after the decorations come down.",
+   "May your home shine with more than lamps—with compassion, togetherness and peace.",
+   "A beautiful festival begins with a grateful heart. Wishing you light, love and countless reasons to smile."
+  ],
+  shayari:[
+   "हर दीप में उम्मीद जले, हर दिल में खुशियों की रोशनी रहे।",
+   "रिश्तों की मिठास बनी रहे, हर आँगन में खुशियों की बहार रहे।",
+   "दीयों की कतार हो, अपनों का प्यार हो, त्योहार आपका हर बार शानदार हो।",
+   "रोशनी से सजे रास्ते, मुस्कान से भरे चेहरे—यही दुआ है आपके त्योहार के लिए।",
+   "खुशियों के रंग बरसें, प्रेम की खुशबू महके, आपका हर दिन त्योहार सा चमके।",
+   "दुआओं का उजाला हो, अपनों का साथ निराला हो, हर पल आपका खुशियों वाला हो।",
+   "जहाँ प्रेम की लौ जलती है, वहाँ हर रात भी उजली लगती है।",
+   "त्योहार आए तो सिर्फ घर नहीं, दिल भी सजाइए—गिले मिटाइए और रिश्ते फिर से मुस्कुराइए।",
+   "एक दीप विश्वास का, एक दीप प्यार का—आपके जीवन में उजाला रहे हर बार का।",
+   "मिठास रहे बातों में, उजाला रहे रातों में, खुशियाँ रहें आपके हर जज़्बातों में।",
+   "आँगन में दीप जले, मन में उम्मीद पले, आपकी दुनिया में हर सपना खिले।",
+   "परंपरा की खुशबू हो, अपनों की महफ़िल हो, हर पल में त्योहार की मंज़िल हो।",
+   "रौशन रहे आपका घर, महकता रहे संसार—दिल से मुबारक हो आपको ये पावन त्योहार।",
+   "चाँदनी सी शीतलता, दीपों सी चमक—आपके जीवन में बनी रहे खुशियों की झलक।",
+   "प्रार्थना में सुकून मिले, रिश्तों में प्यार मिले, हर नए सवेरे में खुशियों का संसार मिले।"
+  ],
+  status:[
+   "Lights on. Hearts full. Festival mode: ON. 🪔",
+   "Tradition in the heart, celebration in the moment. ✨",
+   "A little light, a little prayer, a lot of gratitude.",
+   "Collecting memories, not just festival photos. ❤️",
+   "Home glowing. Family laughing. Heart grateful.",
+   "Festive days are better when shared with the people who feel like home.",
+   "More diyas. More smiles. More reasons to be thankful.",
+   "Today feels brighter—and so does the heart. ✨",
+   "Old traditions, new memories, same beautiful feeling.",
+   "Peace in the prayer, joy in the celebration.",
+   "The best festival decoration is a house full of happy people.",
+   "Let the lights outside remind you of the light within.",
+   "Celebrating faith, family, food and all the little joys in between.",
+   "Festive spirit, peaceful soul. 🙏",
+   "May the glow stay long after the lamps are gone."
+  ],
+  captions:[
+   "A little light, a lot of love, and a heart full of gratitude. 🪔",
+   "Celebrating tradition, family and the little moments that make festivals unforgettable.",
+   "Where there are lamps, laughter and loved ones, there is home.",
+   "Dressed in tradition, surrounded by love, and grateful for this beautiful moment.",
+   "Keeping the rituals close and the memories closer. ✨",
+   "A festival is not just a date on the calendar—it is a feeling we carry together.",
+   "Golden lights, warm smiles and the comfort of familiar traditions.",
+   "Today we celebrate what connects us: faith, family, culture and love.",
+   "From our home to your heart—wishing you a season filled with light.",
+   "The glow is beautiful, but the togetherness is the real celebration.",
+   "A quiet prayer, a bright diya and a heart that knows how to be grateful.",
+   "Tradition in every detail, joy in every frame. 📸",
+   "May this festive moment become one of those memories we keep forever.",
+   "Lighting the lamps, sharing the sweets, making the memories.",
+   "Let your celebration shine with kindness as much as it shines with lights."
+  ],
+  messages:[
+   "Warm festive wishes to you and your family. May your home be filled with peace, prosperity, good health and beautiful memories.",
+   "May this sacred season bring harmony to your home, strength to your family and hope to every new beginning.",
+   "Sending heartfelt wishes for a safe, joyful and meaningful celebration. May every prayer bring peace to your heart.",
+   "May the blessings of the festival bring abundance to your work, happiness to your family and calm to your mind.",
+   "Wishing you a festival filled with sincere prayers, delicious memories, loving conversations and peaceful evenings.",
+   "May your home glow with lamps and your life glow with purpose, compassion and hope.",
+   "May this celebration bring your family closer and remind you of the traditions that make home special.",
+   "Wishing you prosperity without worry, happiness without limit and relationships filled with warmth.",
+   "May every offering be made with gratitude, every prayer with faith and every celebration with kindness.",
+   "Have a beautiful festival. May the coming days carry the same warmth and light you feel today.",
+   "May your family be blessed with togetherness, your home with peace and your future with bright possibilities.",
+   "Wishing you a celebration that is joyful enough to remember and peaceful enough to cherish.",
+   "May the festive season open the door to fresh beginnings, meaningful connections and abundant blessings.",
+   "From our family to yours, heartfelt wishes for light, laughter, health and harmony.",
+   "May the spirit of the festival stay with you through every ordinary day that follows."
+  ]
  }
 };
