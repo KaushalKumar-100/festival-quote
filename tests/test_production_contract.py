@@ -1,4 +1,5 @@
 import pathlib
+import sqlite3
 import re
 import shutil
 import sys
@@ -252,6 +253,42 @@ class ProductionContractTests(unittest.TestCase):
             self.assertIn(feature, guide)
         for path in ["/festivals.html", "/quotes.html", "/guide.html"]:
             self.assertIn(path, home)
+
+    def test_payment_migration_executes_on_sqlite(self):
+        migration = (ROOT / "migrations" / "0003_payments.sql").read_text(encoding="utf-8")
+        connection = sqlite3.connect(":memory:")
+        try:
+            connection.executescript(
+                """
+                CREATE TABLE providers (id INTEGER PRIMARY KEY);
+                CREATE TABLE quotes (
+                    id INTEGER PRIMARY KEY,
+                    request_id INTEGER,
+                    provider_id INTEGER,
+                    lead_fee INTEGER,
+                    customer_selected INTEGER,
+                    provider_paid INTEGER
+                );
+                """
+            )
+            connection.executescript(migration)
+            connection.execute(
+                "INSERT INTO providers(id) VALUES (1)"
+            )
+            connection.execute(
+                "INSERT INTO quotes(id,provider_id,lead_fee,customer_selected,provider_paid) VALUES (1,1,150,1,0)"
+            )
+            connection.execute(
+                """INSERT INTO lead_payments
+                   (quote_id,provider_id,amount,status,gateway,reference_id)
+                   VALUES (1,1,150,'pending','manual','TEST-1')"""
+            )
+            row = connection.execute(
+                "SELECT status,amount FROM lead_payments WHERE quote_id=1"
+            ).fetchone()
+            self.assertEqual(row, ("pending", 150))
+        finally:
+            connection.close()
 
     def test_payment_workflow_is_present(self):
         schema = (ROOT / "schema.sql").read_text(encoding="utf-8")
