@@ -498,7 +498,7 @@ async def update_payment_status(
     if payload.status == "paid":
         await database.prepare("""UPDATE lead_payments SET status="paid",gateway_payment_id=COALESCE(gateway_payment_id,?),
             failure_reason="",paid_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=?""" ).bind(payload.reference.strip(),payment_id).run()
-        await database.prepare("UPDATE quotes SET provider_paid=1,lead_status="paid" WHERE id=?").bind(payment["quote_id"]).run()
+        await database.prepare('UPDATE quotes SET provider_paid=1,lead_status=? WHERE id=?').bind('paid',payment['quote_id']).run()
     elif payload.status == "refunded":
         await database.prepare("""UPDATE lead_payments SET status="refunded",updated_at=CURRENT_TIMESTAMP WHERE id=?""" ).bind(payment_id).run()
         await database.prepare("UPDATE quotes SET provider_paid=0 WHERE id=?").bind(payment["quote_id"]).run()
@@ -629,7 +629,9 @@ async def stats(request: Request, x_admin_key: str | None = Header(default=None)
         (SELECT COUNT(*) FROM requests WHERE status='booked') AS booked,
         (SELECT COUNT(*) FROM providers WHERE active=1) AS providers,
         (SELECT COUNT(*) FROM quotes) AS quotes,
-        (SELECT COALESCE(SUM(lead_fee),0) FROM quotes WHERE provider_paid=1) AS revenue"""
+        (SELECT COUNT(*) FROM lead_payments WHERE status='pending') AS payments_pending,
+        (SELECT COUNT(*) FROM lead_payments WHERE status='paid') AS payments_paid,
+        (SELECT COALESCE(SUM(amount),0) FROM lead_payments WHERE status='paid') AS revenue"""
     ).first()
     return counts
 
