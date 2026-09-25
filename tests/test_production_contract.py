@@ -268,58 +268,17 @@ class ProductionContractTests(unittest.TestCase):
         for path in ["/festivals.html", "/quotes.html", "/guide.html"]:
             self.assertIn(path, home)
 
-    def test_payment_migration_executes_on_sqlite(self):
-        migration = (ROOT / "migrations" / "0003_payments.sql").read_text(encoding="utf-8")
-        connection = sqlite3.connect(":memory:")
-        try:
-            connection.executescript(
-                """
-                CREATE TABLE providers (id INTEGER PRIMARY KEY);
-                CREATE TABLE quotes (
-                    id INTEGER PRIMARY KEY,
-                    request_id INTEGER,
-                    provider_id INTEGER,
-                    lead_fee INTEGER,
-                    customer_selected INTEGER,
-                    provider_paid INTEGER
-                );
-                """
-            )
-            connection.executescript(migration)
-            connection.execute(
-                "INSERT INTO providers(id) VALUES (1)"
-            )
-            connection.execute(
-                "INSERT INTO quotes(id,provider_id,lead_fee,customer_selected,provider_paid) VALUES (1,1,150,1,0)"
-            )
-            connection.execute(
-                """INSERT INTO lead_payments
-                   (quote_id,provider_id,amount,status,gateway,reference_id)
-                   VALUES (1,1,150,'pending','manual','TEST-1')"""
-            )
-            row = connection.execute(
-                "SELECT status,amount FROM lead_payments WHERE quote_id=1"
-            ).fetchone()
-            self.assertEqual(row, ("pending", 150))
-        finally:
-            connection.close()
-
-    def test_payment_workflow_is_present(self):
-        schema = (ROOT / "schema.sql").read_text(encoding="utf-8")
-        migration = (ROOT / "migrations" / "0003_payments.sql").read_text(encoding="utf-8")
+    def test_payment_collection_is_removed_from_validation_flow(self):
         worker = (ROOT / "src" / "worker.py").read_text(encoding="utf-8")
         admin = (ROOT / "public" / "admin" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("CREATE TABLE IF NOT EXISTS lead_payments", schema)
-        self.assertIn("CREATE TABLE IF NOT EXISTS lead_payments", migration)
-        self.assertIn('idx_lead_payments_status', migration)
-        self.assertIn('/api/quotes/{quote_id}/payment', worker)
-        self.assertIn('/api/payments/{payment_id}/status', worker)
-        self.assertIn('/api/webhooks/razorpay', worker)
-        self.assertIn('payment_link.paid', worker)
-        self.assertIn('X-Razorpay-Signature', worker)
-        self.assertIn('Payments', admin)
-        self.assertIn('Collect ₹', admin)
-        self.assertIn('/api/payments', admin)
+        self.assertNotIn("/api/quotes/{quote_id}/payment", worker)
+        self.assertNotIn("/api/payments/{payment_id}/status", worker)
+        self.assertNotIn("/api/webhooks/razorpay", worker)
+        self.assertNotIn("Razorpay", worker)
+        self.assertNotIn("paymentsTab", admin)
+        self.assertNotIn("Collect ₹", admin)
+        self.assertNotIn("createPayment(", admin)
+        self.assertNotIn("loadPayments(", admin)
 
     def test_provider_migration_is_explicit(self):
         migration = (
