@@ -110,7 +110,12 @@ class ProductionContractTests(unittest.TestCase):
                 f"{relative} missing IDs: {required_ids - parser.ids}",
             )
 
-        for relative in ("public/track.html", "public/my-requests.html", "public/admin/index.html", "public/provider.html"):
+        for relative in (
+            "public/track.html",
+            "public/my-requests.html",
+            "public/admin/index.html",
+            "public/provider.html",
+        ):
             parser = HTMLContractParser()
             parser.feed((ROOT / relative).read_text(encoding="utf-8"))
             self.assertTrue(
@@ -118,16 +123,28 @@ class ProductionContractTests(unittest.TestCase):
                 f"{relative} must be noindex",
             )
 
-
     def test_private_page_javascript_parses(self):
         node = shutil.which("node")
-        self.assertIsNotNone(node, "Node.js is required to validate private-page JavaScript")
-        for relative in ("public/admin/index.html", "public/provider.html", "public/track.html", "public/my-requests.html"):
+        self.assertIsNotNone(
+            node, "Node.js is required to validate private-page JavaScript"
+        )
+        for relative in (
+            "public/admin/index.html",
+            "public/provider.html",
+            "public/track.html",
+            "public/my-requests.html",
+        ):
             html = (ROOT / relative).read_text(encoding="utf-8")
-            scripts = re.findall(r"<script(?:\\s[^>]*)?>([\\s\\S]*?)</script>", html, flags=re.IGNORECASE)
+            scripts = re.findall(
+                r"<script(?:s[^>]*)?>([sS]*?)</script>",
+                html,
+                flags=re.IGNORECASE,
+            )
             self.assertTrue(scripts, f"{relative} must contain JavaScript")
             for index, script in enumerate(scripts):
-                with tempfile.NamedTemporaryFile("w", suffix=".js", encoding="utf-8", delete=False) as handle:
+                with tempfile.NamedTemporaryFile(
+                    "w", suffix=".js", encoding="utf-8", delete=False
+                ) as handle:
                     handle.write(script)
                     path = handle.name
                 try:
@@ -140,7 +157,7 @@ class ProductionContractTests(unittest.TestCase):
                     self.assertEqual(
                         result.returncode,
                         0,
-                        f"{relative} script #{index + 1} has invalid JavaScript:\\n{result.stderr}",
+                        f"{relative} script #{index + 1} has invalid JavaScript:\n{result.stderr}",
                     )
                 finally:
                     pathlib.Path(path).unlink(missing_ok=True)
@@ -150,7 +167,11 @@ class ProductionContractTests(unittest.TestCase):
         portal = (ROOT / "public/provider.html").read_text(encoding="utf-8")
         admin = (ROOT / "public/admin/index.html").read_text(encoding="utf-8")
         self.assertIn("hashlib.sha256", worker)
-        self.assertIn("X-Provider-Token", worker)
+        self.assertIn(
+            "x_provider_token: str | None = Header(default=None)",
+            worker,
+        )
+        self.assertIn("provider_token_hash(x_provider_token)", worker)
         self.assertIn("/api/provider/portal", portal)
         self.assertIn("/api/provider/quotes/", portal)
         self.assertNotIn("localStorage", portal)
@@ -158,14 +179,25 @@ class ProductionContractTests(unittest.TestCase):
         self.assertIn('"/api/providers/"+id+"/portal-link"', admin)
 
     def test_provider_migration_is_explicit(self):
-        migration = (ROOT / "migrations/0002_provider_portal.sql").read_text(encoding="utf-8")
-        self.assertIn("ALTER TABLE providers ADD COLUMN portal_token_hash TEXT;", migration)
-        self.assertIn("CREATE UNIQUE INDEX IF NOT EXISTS idx_providers_portal_token_hash", migration)
+        migration = (
+            ROOT / "migrations/0002_provider_portal.sql"
+        ).read_text(encoding="utf-8")
+        self.assertIn(
+            "ALTER TABLE providers ADD COLUMN portal_token_hash TEXT;",
+            migration,
+        )
+        self.assertIn(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_providers_portal_token_hash",
+            migration,
+        )
 
     def test_worker_does_not_contain_hardcoded_local_admin_secret(self):
         worker = (ROOT / "src/worker.py").read_text(encoding="utf-8")
         self.assertNotIn("festivalquote-local-admin-2026", worker)
-        self.assertIn('getattr(request.scope["env"], "ADMIN_KEY", "")', worker)
+        self.assertIn(
+            'getattr(request.scope["env"], "ADMIN_KEY", "")',
+            worker,
+        )
 
     def test_private_tracker_returns_editable_fields(self):
         worker = (ROOT / "src/worker.py").read_text(encoding="utf-8")
@@ -173,7 +205,10 @@ class ProductionContractTests(unittest.TestCase):
             "SELECT id,name,phone,email,city,festival,service,event_date,budget,details,status,created_at",
             worker,
         )
-        self.assertIn('"X-Request-Token"', (ROOT / "public/track.html").read_text(encoding="utf-8"))
+        self.assertIn(
+            '"X-Request-Token"',
+            (ROOT / "public/track.html").read_text(encoding="utf-8"),
+        )
 
 
 if __name__ == "__main__":
