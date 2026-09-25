@@ -256,7 +256,7 @@ class ProductionContractTests(unittest.TestCase):
         self.assertIn('id="style"', quotes)
         self.assertIn('id="next"', quotes)
         for feature in ["wishes", "shayari", "status", "captions", "messages"]:
-            self.assertGreaterEqual(data.count('"'+feature+':'), 1)
+            self.assertIn(feature+':[', data)
         self.assertGreaterEqual(data.count('May '), 10)
         self.assertIn('setInterval(next,9000)', quotes)
         for path in ["/festivals.html", "/quotes.html", "/guide.html"]:
