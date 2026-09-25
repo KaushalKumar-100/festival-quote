@@ -8,7 +8,7 @@ from datetime import date
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
-from workers import asgi
+from workers import asgi, fetch
 
 app = FastAPI(title="FestivalQuote API", version="1.2.0")
 Default = asgi.entrypoint(app)
