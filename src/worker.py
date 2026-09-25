@@ -1,7 +1,4 @@
-import base64
 import hashlib
-import hmac
-import json
 import secrets
 from datetime import date
 
@@ -107,18 +104,6 @@ class QuoteStatusIn(BaseModel):
     customer_selected: bool = False
 
 
-class PaymentCreateIn(BaseModel):
-    amount: int | None = Field(default=None, ge=1, le=1000000)
-    payment_url: str | None = Field(default=None, max_length=1000)
-
-
-class PaymentStatusIn(BaseModel):
-    status: str
-    reference: str = Field(default="", max_length=160)
-    payment_url: str | None = Field(default=None, max_length=1000)
-    failure_reason: str = Field(default="", max_length=500)
-
-
 @app.get("/api/health")
 async def health():
     return {"ok": True, "service": "FestivalQuote", "environment": "cloudflare-workers"}
@@ -192,10 +177,8 @@ async def request_detail(
     quotes = await rows(
         database,
         """SELECT q.*,p.name AS provider,p.city AS provider_city,p.service AS provider_service,
-                  p.phone,p.whatsapp,p.source_url,p.lead_fee AS default_lead_fee,
-                  lp.id AS payment_id,lp.status AS payment_status,lp.payment_url
+                  p.phone,p.whatsapp,p.source_url,p.lead_fee AS default_lead_fee
            FROM quotes q JOIN providers p ON p.id=q.provider_id
-           LEFT JOIN lead_payments lp ON lp.quote_id=q.id
            WHERE q.request_id=? ORDER BY q.created_at DESC""",
         request_id,
     )
@@ -321,7 +304,7 @@ async def provider_portal(
     quotes = await rows(
         db(request),
         """SELECT q.id,q.price,q.package,q.availability,q.response_note,q.lead_status,
-                  q.customer_selected,q.provider_paid,q.created_at,
+                  q.customer_selected,q.created_at,
                   r.id AS request_id,r.festival,r.service,r.event_date,r.budget,r.details,r.city
            FROM quotes q JOIN requests r ON r.id=q.request_id
            WHERE q.provider_id=?
@@ -351,8 +334,8 @@ async def provider_update_quote(
     ).bind(quote_id, provider["id"]).first()
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
-    if quote["customer_selected"] or quote["provider_paid"]:
-        raise HTTPException(status_code=409, detail="This quote is locked after customer selection or payment")
+    if quote["customer_selected"]:
+        raise HTTPException(status_code=409, detail="This quote is locked after customer selection")
     await database.prepare(
         """UPDATE quotes
            SET price=?,package=?,availability=?,response_note=?,lead_status='provider_responded'
@@ -392,154 +375,6 @@ async def create_quote(
     return {"id": result.meta.last_row_id, "lead_fee": fee}
 
 
-@app.get("/api/payments")
-async def list_payments(
-    request: Request,
-    status: str | None = None,
-    x_admin_key: str | None = Header(default=None),
-):
-    admin_guard(request, x_admin_key)
-    database = db(request)
-    sql = """SELECT lp.id,lp.quote_id,lp.provider_id,lp.amount,lp.currency,lp.status,
-                    lp.gateway,lp.gateway_payment_link_id,lp.gateway_payment_id,
-                    lp.payment_url,lp.reference_id,lp.failure_reason,lp.created_at,lp.paid_at,
-                    p.name AS provider,p.phone,q.request_id,q.customer_selected,q.lead_status,
-                    r.name AS customer,r.city,r.service,r.festival
-             FROM lead_payments lp
-             JOIN providers p ON p.id=lp.provider_id
-             JOIN quotes q ON q.id=lp.quote_id
-             JOIN requests r ON r.id=q.request_id
-             WHERE 1=1"""
-    params: list[str] = []
-    if status:
-        sql += " AND lp.status=?"
-        params.append(status)
-    sql += " ORDER BY lp.created_at DESC LIMIT 300"
-    return await rows(database, sql, *params)
-
-
-@app.post("/api/quotes/{quote_id}/payment")
-async def create_lead_payment(
-    quote_id: int,
-    payload: PaymentCreateIn,
-    request: Request,
-    x_admin_key: str | None = Header(default=None),
-):
-    admin_guard(request, x_admin_key)
-    database = db(request)
-    quote = await database.prepare(
-        """SELECT q.id,q.request_id,q.provider_id,q.lead_fee,q.customer_selected,q.provider_paid,
-                  p.name AS provider,p.phone,r.name AS customer
-           FROM quotes q JOIN providers p ON p.id=q.provider_id
-           JOIN requests r ON r.id=q.request_id WHERE q.id=?"""
-    ).bind(quote_id).first()
-    if not quote:
-        raise HTTPException(status_code=404, detail="Quote not found")
-    if not quote["customer_selected"]:
-        raise HTTPException(status_code=409, detail="Customer must select the quote before lead payment is requested")
-    if quote["provider_paid"]:
-        raise HTTPException(status_code=409, detail="Lead fee is already paid")
-    existing = await database.prepare("SELECT * FROM lead_payments WHERE quote_id=?").bind(quote_id).first()
-    if existing:
-        return {k: existing[k] for k in ("id","status","amount","payment_url","reference_id","gateway")}
-    amount = int(payload.amount or quote["lead_fee"] or 0)
-    if amount < 1:
-        raise HTTPException(status_code=400, detail="Lead fee must be greater than zero")
-    reference_id = f"FQ-Q{quote_id}-{secrets.token_hex(4)}"
-    gateway = "manual"
-    payment_url = payload.payment_url
-    gateway_link_id = None
-    key_id = getattr(request.scope["env"], "RAZORPAY_KEY_ID", "")
-    key_secret = getattr(request.scope["env"], "RAZORPAY_KEY_SECRET", "")
-    if key_id and key_secret and not payment_url:
-        if amount < 100:
-            raise HTTPException(status_code=400, detail="Razorpay lead-fee links require an amount of at least ₹100")
-        auth = base64.b64encode(f"{key_id}:{key_secret}".encode()).decode()
-        body = {"amount": amount * 100, "currency": "INR", "reference_id": reference_id,
-                "description": f"FestivalQuote lead fee for quote #{quote_id}",
-                "customer": {"name": quote["provider"], "contact": quote["phone"] or ""},
-                "notify": {"sms": True}, "reminder_enable": True}
-        response = await fetch("https://api.razorpay.com/v1/payment_links", method="POST",
-            headers={"Authorization": f"Basic {auth}", "Content-Type": "application/json"},
-            body=json.dumps(body))
-        if not response.ok:
-            raise HTTPException(status_code=502, detail="Payment gateway could not create the payment link")
-        data = await response.json()
-        payment_url = data.get("short_url")
-        gateway_link_id = data.get("id")
-        gateway = "razorpay"
-        if not payment_url or not gateway_link_id:
-            raise HTTPException(status_code=502, detail="Payment gateway returned an incomplete payment link")
-    await database.prepare(
-        """INSERT INTO lead_payments
-           (quote_id,provider_id,amount,status,gateway,gateway_payment_link_id,payment_url,reference_id)
-           VALUES (?,?,?,"pending",?,?,?,?)"""
-    ).bind(quote_id,quote["provider_id"],amount,gateway,gateway_link_id,payment_url,reference_id).run()
-    payment = await database.prepare("SELECT * FROM lead_payments WHERE quote_id=?").bind(quote_id).first()
-    return {k: payment[k] for k in ("id","status","amount","payment_url","reference_id","gateway")}
-
-
-@app.patch("/api/payments/{payment_id}/status")
-async def update_payment_status(
-    payment_id: int,
-    payload: PaymentStatusIn,
-    request: Request,
-    x_admin_key: str | None = Header(default=None),
-):
-    admin_guard(request, x_admin_key)
-    allowed = {"pending","paid","failed","waived","refunded"}
-    if payload.status not in allowed:
-        raise HTTPException(status_code=400, detail="Invalid payment status")
-    if payload.status == "paid" and len(payload.reference.strip()) < 2:
-        raise HTTPException(status_code=400, detail="Payment reference is required when marking a payment paid")
-    database = db(request)
-    payment = await database.prepare("SELECT id,quote_id,status FROM lead_payments WHERE id=?").bind(payment_id).first()
-    if not payment:
-        raise HTTPException(status_code=404, detail="Payment not found")
-    if payment["status"] == "paid" and payload.status not in {"paid","refunded"}:
-        raise HTTPException(status_code=409, detail="Paid payments cannot move back to pending or failed")
-    if payload.status == "paid":
-        await database.prepare("""UPDATE lead_payments SET status="paid",gateway_payment_id=COALESCE(gateway_payment_id,?),
-            failure_reason="",paid_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=?""" ).bind(payload.reference.strip(),payment_id).run()
-        await database.prepare('UPDATE quotes SET provider_paid=1,lead_status=? WHERE id=?').bind('paid',payment['quote_id']).run()
-    elif payload.status == "refunded":
-        await database.prepare("""UPDATE lead_payments SET status="refunded",updated_at=CURRENT_TIMESTAMP WHERE id=?""" ).bind(payment_id).run()
-        await database.prepare("UPDATE quotes SET provider_paid=0 WHERE id=?").bind(payment["quote_id"]).run()
-    else:
-        await database.prepare(
-            "UPDATE lead_payments SET status=?,payment_url=COALESCE(?,payment_url),failure_reason=?,updated_at=CURRENT_TIMESTAMP WHERE id=?"
-        ).bind(payload.status,payload.payment_url,payload.failure_reason.strip(),payment_id).run()
-    return {"id": payment_id, "status": payload.status}
-
-
-@app.post("/api/webhooks/razorpay")
-async def razorpay_webhook(request: Request):
-    secret = getattr(request.scope["env"], "RAZORPAY_WEBHOOK_SECRET", "")
-    signature = request.headers.get("X-Razorpay-Signature", "")
-    if not secret or not signature:
-        raise HTTPException(status_code=401, detail="Webhook authentication failed")
-    body = await request.body()
-    expected = hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
-    if not hmac.compare_digest(expected, signature):
-        raise HTTPException(status_code=401, detail="Webhook authentication failed")
-    payload = json.loads(body)
-    if payload.get("event") != "payment_link.paid":
-        return {"received": True}
-    entity = payload.get("payload",{}).get("payment_link",{}).get("entity",{})
-    link_id = entity.get("id")
-    payments = entity.get("payments") or []
-    payment_id = payments[0].get("payment_id") if payments else None
-    if not link_id:
-        return {"received": True}
-    database = db(request)
-    payment = await database.prepare("SELECT id,quote_id FROM lead_payments WHERE gateway_payment_link_id=?").bind(link_id).first()
-    if not payment:
-        return {"received": True}
-    await database.prepare("""UPDATE lead_payments SET status="paid",gateway_payment_id=COALESCE(?,gateway_payment_id),
-        paid_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=?""" ).bind(payment_id,payment["id"]).run()
-    await database.prepare('UPDATE quotes SET provider_paid=1,lead_status=? WHERE id=?').bind('paid',payment['quote_id']).run()
-    return {"received": True}
-
 @app.patch("/api/quotes/{quote_id}/status")
 async def update_quote_status(
     quote_id: int,
@@ -548,36 +383,17 @@ async def update_quote_status(
     x_admin_key: str | None = Header(default=None),
 ):
     admin_guard(request, x_admin_key)
-    allowed = {"pending", "provider_responded", "contacted", "accepted", "rejected", "paid", "waived"}
+    allowed = {"pending", "provider_responded", "contacted", "accepted", "rejected", "waived"}
     if payload.lead_status not in allowed:
         raise HTTPException(status_code=400, detail="Invalid lead status")
     database = db(request)
-    quote = await database.prepare(
-        """SELECT q.id,q.customer_selected,q.provider_paid,
-                  lp.status AS payment_status
-           FROM quotes q
-           LEFT JOIN lead_payments lp ON lp.quote_id=q.id
-           WHERE q.id=?"""
-    ).bind(quote_id).first()
+    quote = await database.prepare("SELECT id,customer_selected FROM quotes WHERE id=?").bind(quote_id).first()
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
-    if quote["provider_paid"] or quote["payment_status"] == "paid":
-        if not payload.customer_selected or payload.lead_status not in {"paid", "waived"}:
-            raise HTTPException(status_code=409, detail="Paid quotes are locked")
     if quote["customer_selected"] and not payload.customer_selected:
         raise HTTPException(status_code=409, detail="Customer selection cannot be undone from the admin status control")
-    if payload.lead_status == "paid":
-        payment = await database.prepare(
-            "SELECT status FROM lead_payments WHERE quote_id=?"
-        ).bind(quote_id).first()
-        if not payment or payment["status"] != "paid":
-            raise HTTPException(status_code=409, detail="Mark the lead payment as paid before setting quote status to paid")
-    await database.prepare(
-        "UPDATE quotes SET lead_status=?,customer_selected=? WHERE id=?"
-    ).bind(
-        payload.lead_status, int(payload.customer_selected), quote_id
-    ).run()
-    return {"id": quote_id, **payload.model_dump(), "provider_paid": bool(quote["provider_paid"])}
+    await database.prepare("UPDATE quotes SET lead_status=?,customer_selected=? WHERE id=?").bind(payload.lead_status, int(payload.customer_selected), quote_id).run()
+    return {"id": quote_id, **payload.model_dump()}
 
 @app.get("/api/track")
 async def track_request(request: Request, id: int, token: str):
@@ -650,13 +466,9 @@ async def stats(request: Request, x_admin_key: str | None = Header(default=None)
         (SELECT COUNT(*) FROM requests WHERE status='quotes_ready') AS quotes_ready,
         (SELECT COUNT(*) FROM requests WHERE status='booked') AS booked,
         (SELECT COUNT(*) FROM providers WHERE active=1) AS providers,
-        (SELECT COUNT(*) FROM quotes) AS quotes,
-        (SELECT COUNT(*) FROM lead_payments WHERE status='pending') AS payments_pending,
-        (SELECT COUNT(*) FROM lead_payments WHERE status='paid') AS payments_paid,
-        (SELECT COALESCE(SUM(amount),0) FROM lead_payments WHERE status='paid') AS revenue"""
+        (SELECT COUNT(*) FROM quotes) AS quotes"""
     ).first()
     return counts
-
 
 @app.get("/api/providers/match")
 async def match_providers(
