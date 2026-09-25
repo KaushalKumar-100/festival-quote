@@ -216,7 +216,16 @@ async function loadPayments(){
 function renderPayments(items){
  const el=document.getElementById("payments");
  if(!items.length){el.innerHTML='<div class="empty"><div class="empty-icon">₹</div><b>No payments</b><p>Payments will appear when a customer selects a quote.</p></div>';return}
- el.innerHTML=items.map(p=>'<article class="payment-row"><div><div class="payment-title"><b>#'+p.id+' · Quote #'+p.quote_id+' · '+esc(p.provider)+'</b><span class="payment-chip '+esc(p.status)+'">'+label(p.status)+'</span></div><p>'+esc(p.customer)+' · '+esc(p.service)+' · '+esc(p.city)+'</p><p class="muted">₹'+Number(p.amount).toLocaleString("en-IN")+' · '+label(p.gateway)+' · '+esc(p.reference_id)+'</p></div><div class="payment-actions">'+(p.payment_url?'<a class="small ghost" href="'+esc(p.payment_url)+'" target="_blank" rel="noopener">Open link ↗</a>':"")+(p.status==="pending"?'<button class="small" onclick="markPayment('+p.id+',\'paid\')">Mark paid</button><button class="small ghost" onclick="markPayment('+p.id+',\'failed\')">Failed</button>':"")+(p.status==="paid"?'<button class="small ghost" onclick="markPayment('+p.id+',\'refunded\')">Refunded</button>':"")+'</div></article>').join("")
+ el.innerHTML=items.map(p=>'<article class="payment-row"><div><div class="payment-title"><b>#'+p.id+' · Quote #'+p.quote_id+' · '+esc(p.provider)+'</b><span class="payment-chip '+esc(p.status)+'">'+label(p.status)+'</span></div><p>'+esc(p.customer)+' · '+esc(p.service)+' · '+esc(p.city)+'</p><p class="muted">₹'+Number(p.amount).toLocaleString("en-IN")+' · '+label(p.gateway)+' · '+esc(p.reference_id)+'</p></div><div class="payment-actions">'+(p.payment_url?'<a class="small ghost" href="'+esc(p.payment_url)+'" target="_blank" rel="noopener">Open link ↗</a>':"")+(p.status==="pending"?'<button class="small" onclick="addPaymentLink('+p.id+')">Add link</button><button class="small" onclick="markPayment('+p.id+',\'paid\')">Mark paid</button><button class="small ghost" onclick="markPayment('+p.id+',\'failed\')">Failed</button>':"")+(p.status==="paid"?'<button class="small ghost" onclick="markPayment('+p.id+',\'refunded\')">Refunded</button>':"")+'</div></article>').join("")
+}
+async function addPaymentLink(id){
+ const url=(window.prompt("Paste the verified payment URL:")||"").trim();
+ if(!url)return;
+ try{
+  await api("/api/payments/"+id+"/status",{method:"PATCH",body:JSON.stringify({status:"pending",payment_url:url})});
+  toast("Payment link saved.");
+  await loadPayments();
+ }catch(e){toast(e.message||"Could not save payment link.",true)}
 }
 async function markPayment(id,status){
  const reference=status==="paid"?(window.prompt("Enter gateway/payment reference:")||"").trim():"";
