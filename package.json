@@ -1,0 +1,14 @@
+{
+  "name": "festivalquote",
+  "private": true,
+  "version": "0.2.0",
+  "scripts": {
+    "dev": "uv run pywrangler dev",
+    "deploy": "uv run pywrangler deploy",
+    "preview": "uv run pywrangler preview",
+    "test:contracts": "python -m unittest discover -s tests -v"
+  },
+  "devDependencies": {
+    "wrangler": "4.139.0"
+  }
+}
