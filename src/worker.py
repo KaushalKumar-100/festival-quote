@@ -5,8 +5,6 @@ import json
 import secrets
 from datetime import date
 
-from workers import fetch
-
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
