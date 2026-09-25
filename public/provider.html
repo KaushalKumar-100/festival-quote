@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>FestivalQuote — Provider Portal</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#241b16;background:#f7f2eb;line-height:1.5}
+*{box-sizing:border-box}body{margin:0}.wrap{max-width:980px;margin:auto;padding:24px 18px 60px}
+header{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:26px}
+.brand{font-weight:800;font-size:1.25rem;text-decoration:none;color:#241b16}.brand span{color:#a85b28}
+.eyebrow{font-size:.72rem;letter-spacing:.12em;font-weight:800;color:#a85b28;margin:0 0 5px}
+h1,h2,h3{margin:0 0 8px;line-height:1.15}.muted{color:#766b63}.security{font-size:.82rem;color:#665b53}
+.panel,.quote{background:#fff;border:1px solid #e6ddd3;border-radius:18px;box-shadow:0 8px 24px rgba(50,35,25,.06)}
+.panel{padding:22px;margin-bottom:18px}.quote{padding:20px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+label{display:block;font-weight:700;font-size:.88rem}input,textarea,select{display:block;width:100%;margin-top:6px;border:1px solid #d8cdc1;border-radius:10px;padding:11px;background:#fff;font:inherit;color:inherit}
+textarea{min-height:100px;resize:vertical}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}
+button{border:0;border-radius:10px;padding:11px 15px;font-weight:800;cursor:pointer;background:#2e241f;color:#fff}button.secondary{background:#f1e9e0;color:#2e241f;border:1px solid #ddd0c3}button:disabled{opacity:.6;cursor:wait}
+.quote-head{display:flex;justify-content:space-between;gap:15px;align-items:flex-start}.tag{display:inline-flex;padding:4px 9px;border-radius:999px;background:#f1e9e0;font-size:.75rem;font-weight:800;text-transform:capitalize}.available{background:#e7f4e8;color:#286a32}.limited{background:#fff2d8;color:#8b5b08}.unavailable{background:#f8e4e4;color:#9b3131}
+.meta{display:flex;gap:18px;flex-wrap:wrap;margin:13px 0;color:#665b53;font-size:.9rem}.meta b{color:#2e241f}
+.note{background:#faf7f2;border-radius:12px;padding:12px;margin:13px 0}.msg{min-height:22px;margin:8px 0 0;font-size:.9rem}.error{color:#a33a31}.success{color:#2d7138}
+.hidden{display:none!important}.empty{text-align:center;padding:30px 10px;color:#766b63}
+@media(max-width:650px){.grid{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}.wrap{padding:18px 12px 45px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><a class="brand" href="/">Festival<span>Quote</span></a><p class="eyebrow">PROVIDER RESPONSE PORTAL</p></div>
+  <div class="security">Private access link · never share it publicly</div>
+</header>
+<section id="authError" class="panel hidden">
+  <h2>Access unavailable</h2><p id="authMsg" class="muted">This provider link is missing or invalid.</p>
+  <a href="/" class="secondary">Back to FestivalQuote</a>
+</section>
+<section id="app" class="hidden">
+  <div class="panel">
+    <p class="eyebrow">WELCOME</p>
+    <h1 id="providerName">Provider</h1>
+    <p id="providerMeta" class="muted"></p>
+    <p class="security">You can respond only to leads assigned to this provider account. Customer phone, email and name are intentionally not exposed here.</p>
+  </div>
+  <div id="quotes"></div>
+</section>
+<script>
+const token=new URLSearchParams(location.hash.slice(1)).get("token");
+const app=document.getElementById("app"),authError=document.getElementById("authError"),quotesEl=document.getElementById("quotes");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const label=s=>String(s||"").replaceAll("_"," ").replace(/\b\w/g,m=>m.toUpperCase());
+async function api(url,options={}){
+ const r=await fetch(url,{...options,cache:"no-store",headers:{"X-Provider-Token":token,"Content-Type":"application/json",...(options.headers||{})}});
+ const text=await r.text();let data={};try{data=text?JSON.parse(text):{}}catch{data={detail:"Unexpected server response."}}
+ if(!r.ok)throw Error(data.detail||"Request failed");return data;
+}
+function quoteCard(q){
+ const locked=Boolean(q.customer_selected||q.provider_paid);
+ return '<article class="quote"><div class="quote-head"><div><p class="eyebrow">REQUEST #'+esc(q.request_id)+'</p><h2>'+esc(q.festival)+' · '+esc(q.service)+'</h2></div><span class="tag '+esc(q.availability)+'">'+label(q.availability)+'</span></div>'+
+ '<div class="meta"><span><b>City:</b> '+esc(q.city)+'</span><span><b>Event:</b> '+esc(q.event_date)+'</span><span><b>Budget:</b> '+esc(q.budget)+'</span></div>'+
+ '<div class="note"><b>Customer requirements</b><br>'+esc(q.details||"No additional details provided.")+'</div>'+
+ '<form data-quote="'+q.id+'" class="quoteForm"><div class="grid"><label>Price ₹<input name="price" type="number" min="0" value="'+(q.price??"")+'" '+(locked?"disabled":"")+'></label><label>Availability<select name="availability" '+(locked?"disabled":"")+'><option value="available" '+(q.availability==="available"?"selected":"")+'>Available</option><option value="limited" '+(q.availability==="limited"?"selected":"")+'>Limited</option><option value="unavailable" '+(q.availability==="unavailable"?"selected":"")+'>Unavailable</option><option value="unknown" '+(q.availability==="unknown"?"selected":"")+'>Unknown</option></select></label></div><label>Package / inclusions<textarea name="package" maxlength="1000" '+(locked?"disabled":"")+'>'+esc(q.package||"")+'</textarea></label><label>Response note<textarea name="response_note" maxlength="2000" '+(locked?"disabled":"")+'>'+esc(q.response_note||"")+'</textarea></label><div class="actions">'+(locked?'<span class="security">This quote is locked because the customer selected it or the lead was paid.</span>':'<button type="submit">Send response</button>')+'</div><p class="msg" data-msg></p></form></article>';
+}
+async function load(){
+ if(!token){authError.classList.remove("hidden");return}
+ try{
+  const data=await api("/api/provider/portal");
+  document.getElementById("providerName").textContent=data.provider.name;
+  document.getElementById("providerMeta").textContent=data.provider.city+" · "+data.provider.service;
+  app.classList.remove("hidden");
+  if(!data.quotes.length){quotesEl.innerHTML='<div class="panel empty"><b>No assigned leads yet.</b><p>FestivalQuote will show new requests here when the operations team assigns them.</p></div>';return}
+  quotesEl.innerHTML=data.quotes.map(quoteCard).join("");
+  document.querySelectorAll(".quoteForm").forEach(form=>form.addEventListener("submit",submitQuote));
+ }catch(e){document.getElementById("authMsg").textContent=e.message||"This access link is invalid or inactive.";authError.classList.remove("hidden")}
+}
+async function submitQuote(e){
+ e.preventDefault();const form=e.target,btn=form.querySelector("button"),msg=form.querySelector("[data-msg]");btn.disabled=true;btn.textContent="Sending…";msg.textContent="";
+ const data=Object.fromEntries(new FormData(form));if(data.price==="")data.price=null;else data.price=Number(data.price);
+ try{await api("/api/provider/quotes/"+form.dataset.quote,{method:"PATCH",body:JSON.stringify(data)});msg.textContent="Response sent. FestivalQuote can now show this option to the customer.";msg.className="msg success";await load()}
+ catch(err){msg.textContent=err.message||"Could not send response.";msg.className="msg error";btn.disabled=false;btn.textContent="Send response"}
+}
+load();
+</script>
+</body>
+</html>

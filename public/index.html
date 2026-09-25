@@ -3,30 +3,41 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="FestivalQuote helps Indian families and businesses compare local festival service options without calling dozens of providers.">
-<meta name="theme-color" content="#c96b32">
+<meta name="theme-color" content="#c96b32"><meta name="robots" content="index,follow"><link rel="canonical" href="/"><meta property="og:type" content="website"><meta property="og:title" content="FestivalQuote — Festival services, sorted for you"><meta property="og:description" content="Tell us your festival service need and compare relevant local options without calling dozens of providers.">
 <title>FestivalQuote — Festival services, sorted for you</title>
 <link rel="stylesheet" href="/styles.css">
-</head>
+<style>
+.decision-strip{display:flex;align-items:center;gap:10px;margin-top:18px;padding:10px 12px;background:rgba(255,253,249,.78);border:1px solid var(--line);border-radius:13px;width:max-content;max-width:100%;font-size:12px;color:var(--muted)}
+.decision-strip button{border:0;background:none;color:var(--accent2);font-weight:800;cursor:pointer;padding:0}
+.why-send{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:15px 17px;margin:0 0 20px;background:#fff7eb;border:1px solid #f0ddbd;border-radius:15px;color:#6b4b24}
+.why-send b{font-size:13px}.why-send p{margin:4px 0 0;font-size:12px;line-height:1.5;color:#806746}.why-send>span{font-size:22px;color:var(--accent)}
+.request-summary{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:13px 15px;margin:4px 0 12px;background:#faf6f1;border:1px solid var(--line);border-radius:13px}
+.request-summary b,.request-summary span{display:block}.request-summary b{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}.request-summary span{font-size:12px;margin-top:4px}.request-summary>span{white-space:nowrap;background:#fff;border:1px solid var(--line);padding:7px 9px;border-radius:999px;font-weight:800;color:var(--muted)}.request-summary>span.ready{background:#eaf5ed;border-color:#cfe4d5;color:#287a55}
+.submit-reassurance{text-align:center;color:var(--muted);font-size:11px;margin:9px 0 0}
+@media(max-width:650px){.decision-strip{width:100%;justify-content:space-between}.request-summary{display:block}.request-summary>span{display:inline-block;margin-top:9px}.why-send{align-items:flex-start}}
+</style></head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header>
   <div class="nav">
     <a class="brand" href="/">Festival<span>Quote</span></a>
-    <nav class="navlinks">
-      <a href="#festivals">Festivals</a><a href="#how">How it works</a><a href="#faq">FAQ</a>
+    <nav class="navlinks" aria-label="Primary navigation">
+      <a href="/festivals.html">Festivals</a><a href="/quotes.html">Quotes</a><a href="/guide.html">Festival Guide</a><a href="/my-requests.html">My requests</a>
       <a class="navcta" href="#request">Get quotes →</a>
     </nav>
   </div>
 </header>
 
-<main>
+<main id="main-content">
 <section class="hero">
   <div class="hero-copy">
     <div class="live-pill"><span></span> Festival season is here • Guwahati launch</div>
     <p class="eyebrow">ONE REQUEST • MULTIPLE LOCAL OPTIONS</p>
     <h1>Plan the celebration.<br><em>Skip the calling.</em></h1>
     <p class="sub">Tell FestivalQuote what you need for Diwali, Durga Puja, Chhath and more. We source relevant local providers and bring their options together so you can compare before you book.</p>
-    <div class="hero-actions"><a class="primary" href="#request">Get up to 3 quotes →</a><a class="secondary" href="#how">How it works</a></div>
-    <div class="micro-trust"><span>✓ Customer request is free during launch</span><span>✓ Pay the provider directly</span><span>✓ No spammy listing hunt</span></div>
+    <div class="hero-actions"><a class="primary" href="#request">Get my festival options →</a><a class="secondary" href="#how">See how it works</a></div>
+    <div class="micro-trust"><span>✓ Free customer request</span><span>✓ No obligation to book</span><span>✓ Pay the provider directly</span></div>
+    <div class="decision-strip"><span>Not sure where to start?</span><button type="button" onclick="startQuickPlan()">Build my request in 30 seconds →</button></div>
   </div>
   <div class="hero-panel">
     <div class="festival-card">
@@ -48,15 +59,16 @@
     <button class="festival-tile" data-festival="Chhath Puja"><span>🌅</span><b>Chhath Puja</b><small>Samagri • services • catering</small></button>
     <button class="festival-tile" data-festival="Ganesh Chaturthi"><span>🐘</span><b>Ganesh Chaturthi</b><small>Decor • puja • photography</small></button>
     <button class="festival-tile" data-festival="Navratri"><span>✨</span><b>Navratri</b><small>Decor • events • gifting</small></button>
-  </div>
+  </div><div style="margin-top:16px"><a class="secondary" href="/festivals.html">Explore all festivals →</a> <a class="secondary" href="/guide.html">Open Festival Guide →</a></div>
 </section>
 
 <section id="request" class="form-card">
-  <div class="section-head"><div><p class="eyebrow">FREE DURING LAUNCH</p><h2>Tell us what you need</h2><p class="form-intro">Give us the basics. Our job is to turn this into useful local options.</p></div><span class="quote-badge">Usually up to 3 options</span></div>
-  <div class="progress"><span class="progress-dot on"></span><span></span><span></span><small>1 minute request</small></div>
+  <div class="section-head"><div><p class="eyebrow">FREE DURING LAUNCH</p><h2>Let's find your options.</h2><p class="form-intro">The more useful details you give us, the better we can match the request to local providers.</p></div><span class="quote-badge">No obligation to book</span></div>
+  <div class="progress smart-progress" aria-label="Request completion"><span class="progress-dot on"></span><span></span><span></span><small id="progressLabel">Start with the basics</small></div>
+  <div id="whySend" class="why-send"><div><b id="whyTitle">One request replaces the search.</b><p id="whyText">Tell us the occasion and what you need. We will turn it into a structured local sourcing request.</p></div><span>→</span></div>
   <form id="requestForm">
-    <div class="grid"><label>Your name<input name="name" required minlength="2" placeholder="e.g. Rahul Kumar"></label><label>Phone / WhatsApp<input name="phone" required minlength="7" inputmode="tel" placeholder="9876543210"></label></div>
-    <div class="grid"><label>City<input name="city" required value="Guwahati" placeholder="Guwahati"></label><label>Festival<select name="festival" id="festivalSelect"><option>Diwali</option><option>Durga Puja</option><option>Dussehra</option><option>Chhath Puja</option><option>Ganesh Chaturthi</option><option>Navratri</option><option>Other Festival</option></select></label></div>
+    <div class="grid"><label>Your name<input name="name" autocomplete="name" required minlength="2" placeholder="e.g. Rahul Kumar"></label><label>Phone / WhatsApp<input name="phone" autocomplete="tel" required minlength="7" inputmode="tel" placeholder="9876543210"></label></div>
+    <div class="grid"><label>City<input name="city" autocomplete="address-level2" required value="Guwahati" placeholder="Guwahati"></label><label>Festival<select name="festival" id="festivalSelect"><option>Diwali</option><option>Durga Puja</option><option>Dussehra</option><option>Chhath Puja</option><option>Ganesh Chaturthi</option><option>Navratri</option><option>Other Festival</option></select></label></div>
     <div class="service-picker"><label>What do you need?</label><div class="service-chips" id="serviceChips">
       <button type="button" class="service-chip active" data-service="Decoration / Lighting">🪔 Decoration</button>
       <button type="button" class="service-chip" data-service="Photographer">📸 Photography</button>
@@ -68,15 +80,17 @@
       <button type="button" class="service-chip" data-service="Chhath Services">🌅 Chhath Services</button>
     </div><input type="hidden" name="service" id="serviceInput" value="Decoration / Lighting"></div>
     <div class="grid"><label>Event date<input type="date" name="event_date" required></label><label>Budget<select name="budget"><option>Under ₹5,000</option><option>₹5,000–₹10,000</option><option>₹10,000–₹25,000</option><option>₹25,000–₹50,000</option><option>₹50,000+</option><option>Not sure</option></select></label></div>
-    <div class="grid"><label>Email <span class="optional">(optional)</span><input name="email" type="email" placeholder="you@example.com"></label><label>Preferred style <span class="optional">(optional)</span><select name="style"><option value="">No preference</option><option>Traditional</option><option>Modern</option><option>Minimal</option><option>Premium</option></select></label></div>
+    <div class="grid"><label>Email <span class="optional">(optional)</span><input name="email" autocomplete="email" type="email" placeholder="you@example.com"></label><label>Preferred style <span class="optional">(optional)</span><select name="style"><option value="">No preference</option><option>Traditional</option><option>Modern</option><option>Minimal</option><option>Premium</option></select></label></div>
     <label>Requirement details<textarea name="details" rows="5" maxlength="2000" placeholder="Example: 3BHK home, balcony + entrance decoration, traditional look, installation on the morning of the event."></textarea><small class="counter"><span id="count">0</span>/2000</small></label>
-    <button id="submitBtn" class="submit-btn">Find my options <span>→</span></button>
+    <div id="requestSummary" class="request-summary"><div><b>Your request</b><span id="summaryText">Choose a festival and service to see your request summary.</span></div><span id="summaryReady">Not ready yet</span></div>
+    <button id="submitBtn" class="submit-btn">Find my festival options <span>→</span></button>
+    <p class="submit-reassurance">Free to submit • No payment required • You decide whether to contact or book a provider.</p>
     <div id="msg" class="msg"></div>
   </form>
 </section>
 
 <section id="how" class="section how-section">
-  <div class="section-title"><div><p class="eyebrow">HOW FESTIVALQUOTE WORKS</p><h2>Less searching. More celebrating.</h2></div></div>
+  <div class="section-title"><div><p class="eyebrow">THE JOURNEY</p><h2>From “I need this” to useful options.</h2></div><p>Designed around the real-world problem: finding the right local provider takes time.</p></div>
   <div class="steps">
     <div><span>01</span><div class="step-icon">📝</div><h3>Tell us once</h3><p>Share your city, festival, date, budget and requirement.</p></div>
     <div><span>02</span><div class="step-icon">📞</div><h3>We source locally</h3><p>We contact relevant providers instead of making you call around.</p></div>
@@ -121,17 +135,51 @@
 
 <div id="toast" class="toast"></div>
 <script>
-const form=document.getElementById("requestForm"),msg=document.getElementById("msg"),btn=document.getElementById("submitBtn"),serviceInput=document.getElementById("serviceInput"),festivalSelect=document.getElementById("festivalSelect"),details=document.querySelector('textarea[name="details"]'),count=document.getElementById("count");
+const form=document.getElementById("requestForm"),msg=document.getElementById("msg"),btn=document.getElementById("submitBtn"),serviceInput=document.getElementById("serviceInput"),festivalSelect=document.getElementById("festivalSelect"),details=document.querySelector('textarea[name="details"]'),count=document.getElementById("count"),progressLabel=document.getElementById("progressLabel"),summaryText=document.getElementById("summaryText"),summaryReady=document.getElementById("summaryReady"),whyTitle=document.getElementById("whyTitle"),whyText=document.getElementById("whyText");
+const DRAFT_KEY="festivalquote_request_draft_v1";
 const today=new Date(); document.querySelector('input[name="event_date"]').min=today.toISOString().slice(0,10);
-function selectService(value){serviceInput.value=value;document.querySelectorAll(".service-chip").forEach(x=>x.classList.toggle("active",x.dataset.service===value));}
+function selectService(value){serviceInput.value=value;document.querySelectorAll(".service-chip").forEach(x=>x.classList.toggle("active",x.dataset.service===value));updateRequestUX();}
+function updateRequestUX(){
+ const date=form.elements.event_date.value, festival=festivalSelect.value, service=serviceInput.value, city=form.elements.city.value.trim(), name=form.elements.name.value.trim(), phone=form.elements.phone.value.trim();
+ const complete=[festival,service,city,date,name,phone].filter(Boolean).length;
+ const step=complete<3?0:complete<6?1:2;
+ progressLabel.textContent=step===0?"Start with the basics":step===1?"Almost there — add contact details":"Ready — review and send";
+ const days=date?Math.ceil((new Date(date+"T00:00:00")-new Date(new Date().toDateString()))/86400000):null;
+ if(days!==null&&days>=0&&days<=21){whyTitle.textContent="Your event is "+(days===0?"today":days+" days away")+".";whyText.textContent="Sending the request now gives you more time to compare availability before the date."; }
+ else if(service&&festival){whyTitle.textContent=service+" for "+festival+".";whyText.textContent="We'll use your date, budget and details to make the sourcing request more useful."; }
+ else {whyTitle.textContent="One request replaces the search.";whyText.textContent="Tell us the occasion and what you need. We will turn it into a structured local sourcing request.";}
+ const ready=complete>=6;
+ summaryText.textContent=festival&&service?(festival+" • "+service+(city?" • "+city:"")+(date?" • "+date:"")):"Choose a festival and service to see your request summary.";
+ summaryReady.textContent=ready?"Ready to send":"Add "+(6-complete)+" detail"+(6-complete===1?"":"s");
+ summaryReady.className=ready?"ready":"";
+}
+function saveDraft(){
+ const data=Object.fromEntries(new FormData(form));
+ try{localStorage.setItem(DRAFT_KEY,JSON.stringify({...data,service:serviceInput.value,savedAt:Date.now()}));}catch{}
+}
+function restoreDraft(){
+ try{
+  const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null"); if(!d||Date.now()-d.savedAt>7*86400000)return;
+  for(const [k,v] of Object.entries(d)){if(k==="savedAt"||k==="service")continue;if(form.elements[k])form.elements[k].value=v||""}
+  if(d.service)selectService(d.service);
+  if(d.name||d.phone||d.city||d.event_date){showToast("Your unfinished request was restored.");}
+ }catch{}
+}
+function startQuickPlan(){document.getElementById("request").scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>form.elements.city.focus(),450);}
 document.querySelectorAll(".service-chip").forEach(x=>x.addEventListener("click",()=>selectService(x.dataset.service)));
 document.querySelectorAll("[data-jump-service]").forEach(x=>x.addEventListener("click",()=>{selectService(x.dataset.jumpService);document.getElementById("request").scrollIntoView({behavior:"smooth",block:"start"});}));
 document.querySelectorAll("[data-festival]").forEach(x=>x.addEventListener("click",()=>{festivalSelect.value=x.dataset.festival;document.querySelectorAll(".festival-tile").forEach(t=>t.classList.toggle("active",t===x));document.getElementById("request").scrollIntoView({behavior:"smooth",block:"start"});}));
-details.addEventListener("input",()=>count.textContent=details.value.length);
+details.addEventListener("input",()=>{count.textContent=details.value.length;saveDraft();updateRequestUX();});
+form.addEventListener("input",()=>{saveDraft();updateRequestUX()});
+form.addEventListener("change",()=>{saveDraft();updateRequestUX()});
+restoreDraft();updateRequestUX();
 form.addEventListener("submit",async e=>{e.preventDefault();btn.disabled=true;btn.innerHTML="Sending your request <span class='spinner'></span>";msg.textContent="";
-const data=Object.fromEntries(new FormData(form)); const style=data.style;if(style)data.details=(data.details?data.details+"\n":"")+"Preferred style: "+style;delete data.style;
+const data=Object.fromEntries(new FormData(form)); const style=data.style;if(style)data.details=((data.details?data.details+"\n":"")+"Preferred style: "+style).slice(0,2000);delete data.style;
 try{const r=await fetch("/api/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});const text=await r.text();let j;try{j=JSON.parse(text)}catch{throw Error("Something went wrong while sending your request. Please try again.");}if(!r.ok)throw Error(j.detail||"Could not submit");
-msg.innerHTML='<div class="success-box"><strong>Request #'+j.id+' received 🎉</strong><span>Save your private tracking link. We will update it as options are sourced.</span><a href="'+j.tracking_path+'">Track my request →</a></div>';form.reset();selectService("Decoration / Lighting");count.textContent="0";window.scrollTo({top:document.getElementById("request").offsetTop-20,behavior:"smooth"});showToast("Your request was received.");}catch(err){msg.textContent=err.message||"Could not submit. Please try again."}finally{btn.disabled=false;btn.innerHTML='Find my options <span>→</span>'}});
+const saved=JSON.parse(localStorage.getItem("festivalquote_requests")||"[]");
+saved.unshift({id:j.id,token:j.tracking_token,tracking_path:j.tracking_path,createdAt:new Date().toISOString()});
+localStorage.setItem("festivalquote_requests",JSON.stringify(saved.slice(0,20)));try{localStorage.removeItem(DRAFT_KEY)}catch{}
+msg.innerHTML='<div class="success-box"><strong>Request #'+j.id+' received 🎉</strong><span>Your request is saved on this browser. You can return anytime from <b>My requests</b>.</span><a href="/track.html?id='+encodeURIComponent(j.id)+'&token='+encodeURIComponent(j.tracking_token)+'">View my request →</a><a href="/my-requests.html">See all my requests →</a></div>';form.reset();selectService("Decoration / Lighting");count.textContent="0";window.scrollTo({top:document.getElementById("request").offsetTop-20,behavior:"smooth"});showToast("Your request was received.");}catch(err){msg.textContent=err.message||"Could not submit. Please try again."}finally{btn.disabled=false;btn.innerHTML='Find my options <span>→</span>'}});
 function showToast(t){const toast=document.getElementById("toast");toast.textContent=t;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),3200);}
 const target=new Date("2026-11-08T00:00:00+05:30");function tick(){let ms=Math.max(0,target-new Date()),d=Math.floor(ms/86400000),h=Math.floor(ms/3600000)%24,m=Math.floor(ms/60000)%60;document.getElementById("days").textContent=d;document.getElementById("hours").textContent=h;document.getElementById("mins").textContent=m;document.getElementById("heroDate").textContent="8 Nov 2026";}tick();setInterval(tick,30000);
 </script>

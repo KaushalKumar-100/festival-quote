@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>My requests — FestivalQuote</title><link rel="stylesheet" href="/styles.css"></head>
+<body>
+<header><div class="nav"><a class="brand" href="/">Festival<span>Quote</span></a><a class="navcta" href="/">New request</a></div></header>
+<main>
+<section class="form-card my-requests">
+<p class="eyebrow">YOUR REQUESTS</p><h1>My festival requests</h1>
+<p class="form-intro">Requests saved on this browser appear here. You can reopen, edit, or add another request anytime.</p>
+<div id="list" class="my-list"></div>
+</section>
+</main>
+<script>
+const list=document.getElementById("list");
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function getSaved(){try{return JSON.parse(localStorage.getItem("festivalquote_requests")||"[]")}catch{return[]}}
+async function load(){const saved=getSaved();if(!saved.length){list.innerHTML='<div class="empty"><b>No requests saved on this browser.</b><p>Submit a request and we will keep a shortcut here.</p><a class="primary" href="/">Create your first request →</a></div>';return}list.innerHTML='<div class="loading-card">Loading your requests…</div>';const results=await Promise.all(saved.map(async x=>{try{const r=await fetch("/api/track?id="+encodeURIComponent(x.id)+"&token="+encodeURIComponent(x.token),{cache:"no-store"});if(!r.ok)throw 0;return {...x,data:await r.json()}}catch{return {...x,offline:true}}}));list.innerHTML=results.map(x=>{if(x.offline)return '<article class="my-request"><div><b>Request #'+esc(x.id)+'</b><p>Could not load this request right now.</p></div><a class="secondary" href="'+esc(x.tracking_path)+'">Open ↗</a></article>';const q=x.data.quotes||[],r=x.data.request;return '<article class="my-request"><div><div class="my-title"><b>Request #'+esc(r.id)+'</b><span class="status '+esc(r.status)+'">'+esc(r.status).replaceAll("_"," ")+'</span></div><p>'+esc(r.festival)+' · '+esc(r.service)+' · '+esc(r.city)+'</p><small>Event: '+esc(r.event_date)+' · '+q.length+' option'+(q.length===1?'':'s')+'</small></div><a class="secondary" href="/track.html?id='+encodeURIComponent(x.id)+'&token='+encodeURIComponent(x.token)+'">View & edit →</a></article>'}).join("")}
+load();
+</script>
+<style>
+.my-requests{max-width:900px;margin-top:30px}.my-requests h1{font-size:48px;letter-spacing:-2px;margin:0 0 8px}.my-list{display:grid;gap:12px;margin-top:25px}.my-request{display:flex;justify-content:space-between;align-items:center;gap:18px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px}.my-request p{color:var(--muted);margin:7px 0}.my-request small{color:var(--muted)}.my-title{display:flex;align-items:center;gap:9px}.my-title .status{padding:5px 8px;border-radius:999px;background:var(--soft);color:var(--accent2);font-size:10px;font-weight:700;text-transform:capitalize}@media(max-width:650px){.my-requests h1{font-size:38px}.my-request{display:block}.my-request .secondary{display:inline-block;margin-top:12px}}
+</style>
+</body></html>
