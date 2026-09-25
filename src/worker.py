@@ -107,7 +107,6 @@ class QuoteIn(BaseModel):
 class QuoteStatusIn(BaseModel):
     lead_status: str
     customer_selected: bool = False
-    provider_paid: bool = False
 
 
 class PaymentCreateIn(BaseModel):
@@ -475,7 +474,7 @@ async def create_lead_payment(
     await database.prepare(
         """INSERT INTO lead_payments
            (quote_id,provider_id,amount,status,gateway,gateway_payment_link_id,payment_url,reference_id)
-           VALUES (?,?,?,"pending",?,?,?,?,?)"""
+           VALUES (?,?,?,"pending",?,?,?,?)"""
     ).bind(quote_id,quote["provider_id"],amount,gateway,gateway_link_id,payment_url,reference_id).run()
     payment = await database.prepare("SELECT * FROM lead_payments WHERE quote_id=?").bind(quote_id).first()
     return {k: payment[k] for k in ("id","status","amount","payment_url","reference_id","gateway")}
@@ -554,15 +553,32 @@ async def update_quote_status(
     if payload.lead_status not in allowed:
         raise HTTPException(status_code=400, detail="Invalid lead status")
     database = db(request)
-    result = await database.prepare(
-        "UPDATE quotes SET lead_status=?,customer_selected=?,provider_paid=? WHERE id=?"
-    ).bind(
-        payload.lead_status, int(payload.customer_selected), int(payload.provider_paid), quote_id
-    ).run()
-    if not result.meta.changes:
+    quote = await database.prepare(
+        """SELECT q.id,q.customer_selected,q.provider_paid,
+                  lp.status AS payment_status
+           FROM quotes q
+           LEFT JOIN lead_payments lp ON lp.quote_id=q.id
+           WHERE q.id=?"""
+    ).bind(quote_id).first()
+    if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
-    return {"id": quote_id, **payload.model_dump()}
-
+    if quote["provider_paid"] or quote["payment_status"] == "paid":
+        if not payload.customer_selected or payload.lead_status not in {"paid", "waived"}:
+            raise HTTPException(status_code=409, detail="Paid quotes are locked")
+    if quote["customer_selected"] and not payload.customer_selected:
+        raise HTTPException(status_code=409, detail="Customer selection cannot be undone from the admin status control")
+    if payload.lead_status == "paid":
+        payment = await database.prepare(
+            "SELECT status FROM lead_payments WHERE quote_id=?"
+        ).bind(quote_id).first()
+        if not payment or payment["status"] != "paid":
+            raise HTTPException(status_code=409, detail="Mark the lead payment as paid before setting quote status to paid")
+    await database.prepare(
+        "UPDATE quotes SET lead_status=?,customer_selected=? WHERE id=?"
+    ).bind(
+        payload.lead_status, int(payload.customer_selected), quote_id
+    ).run()
+    return {"id": quote_id, **payload.model_dump(), "provider_paid": bool(quote["provider_paid"])}
 
 @app.get("/api/track")
 async def track_request(request: Request, id: int, token: str):
