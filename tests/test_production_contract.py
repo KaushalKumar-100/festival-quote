@@ -259,6 +259,12 @@ class ProductionContractTests(unittest.TestCase):
             self.assertIn(feature+':[', data)
         self.assertGreaterEqual(data.count('May '), 10)
         self.assertIn('setInterval(next,9000)', quotes)
+        self.assertIn('DRAFT_KEY', home)
+        self.assertIn('restoreDraft()', home)
+        self.assertIn('updateRequestUX()', home)
+        self.assertIn('No obligation to book', home)
+        self.assertIn('requestSummary', home)
+        self.assertIn('whySend', home)
         for path in ["/festivals.html", "/quotes.html", "/guide.html"]:
             self.assertIn(path, home)
 
